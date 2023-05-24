@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">sTube</string>
+
+    <string name="volume">Volume</string>
+    <string name="brightness">Brightness</string>
+    <string name="txt_no_internet">Please Check Your Internet connection</string>
+
 </resources>
