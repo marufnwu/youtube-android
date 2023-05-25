@@ -20,8 +20,8 @@ import com.logicline.tech.stube.R;
 import com.logicline.tech.stube.constants.Constants;
 import com.logicline.tech.stube.databinding.ActivityMainBinding;
 import com.logicline.tech.stube.models.HomeVideo;
-import com.logicline.tech.stube.ui.activities.PlayerActivity;
-import com.logicline.tech.stube.ui.adapters.HomeVideosAdapter;
+import com.logicline.tech.stube.ui.activities.playerActivity.PlayerActivity;
+import com.logicline.tech.stube.ui.adapters.VideoItemAdapter;
 import com.logicline.tech.stube.utils.ConnectionUtils;
 
 public class MainActivity extends AppCompatActivity {
@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private ActivityMainBinding binding;
     private MainViewModel viewModel;
-    private HomeVideosAdapter adapter;
+    private VideoItemAdapter adapter;
     private boolean isLoading = false;
 
     @Override
@@ -72,10 +72,10 @@ public class MainActivity extends AppCompatActivity {
             homeVideoLiveData.observe(this, homeVideo -> {
                 if (homeVideo == null || homeVideo.items == null)
                     return;
-                adapter = new HomeVideosAdapter(getApplicationContext(), homeVideo.items);
+                adapter = new VideoItemAdapter(getApplicationContext(), homeVideo.items);
 
                 //Handle item click
-                adapter.setItemClickListener(new HomeVideosAdapter.ItemClickListener() {
+                adapter.setItemClickListener(new VideoItemAdapter.ItemClickListener() {
                     @Override
                     public void onClick(HomeVideo.Item item) {
                         Intent intent = new Intent(MainActivity.this, PlayerActivity.class);

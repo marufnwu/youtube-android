@@ -5,10 +5,12 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class Utils {
-
+    private static final String[] months = {"Jan", "Feb", "Mar", "Apr",
+            "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
     /**
      * Find system region code
@@ -44,6 +46,13 @@ public class Utils {
         } else {
             Log.d(tag, "LogMsg: " + message);
         }
+    }
+
+    public static String getDateString(Date date) {
+        String sb = months[date.getMonth()] +
+                " " + date.getDate();
+
+        return sb;
     }
 }
 

@@ -12,15 +12,17 @@ import com.bumptech.glide.Glide;
 import com.logicline.tech.stube.R;
 import com.logicline.tech.stube.databinding.ItemHomeVideoBinding;
 import com.logicline.tech.stube.models.HomeVideo;
+import com.logicline.tech.stube.utils.Utils;
 
+import java.util.Date;
 import java.util.List;
 
-public class HomeVideosAdapter extends RecyclerView.Adapter<HomeVideosAdapter.videoViewHolder> {
+public class VideoItemAdapter extends RecyclerView.Adapter<VideoItemAdapter.videoViewHolder> {
     private Context context;
     private ItemClickListener mItemClickListener;
     private List<HomeVideo.Item> items;
 
-    public HomeVideosAdapter(Context context, List<HomeVideo.Item> items){
+    public VideoItemAdapter(Context context, List<HomeVideo.Item> items){
         this.context = context;
         this.items = items;
     }
@@ -41,9 +43,10 @@ public class HomeVideosAdapter extends RecyclerView.Adapter<HomeVideosAdapter.vi
         String videoTitle = item.snippet.title;
         String channelTitle = item.snippet.channelTitle;
         String thumbnailUrl = item.snippet.thumbnails.high.url;
+        Date publishDate = item.snippet.publishedAt;
 
         holder.itemBinding.tvVideoTitle.setText(videoTitle);
-        holder.itemBinding.tvChannelName.setText(channelTitle);
+        holder.itemBinding.tvChannelName.setText(channelTitle+" . " + Utils.getDateString(publishDate));
 
         Glide.with(context)
                 .load(thumbnailUrl)

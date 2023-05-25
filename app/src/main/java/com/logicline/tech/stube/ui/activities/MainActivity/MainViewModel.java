@@ -10,6 +10,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.logicline.tech.stube.api.ApiClient;
 import com.logicline.tech.stube.api.VideoInterface;
+import com.logicline.tech.stube.constants.ApiConstants;
 import com.logicline.tech.stube.models.HomeVideo;
 import com.logicline.tech.stube.constants.Constants;
 import com.logicline.tech.stube.utils.Utils;
@@ -25,30 +26,28 @@ public class MainViewModel extends AndroidViewModel {
     private MutableLiveData<HomeVideo> homeVideo;
     private final VideoInterface videoInterface;
     private String nextPageToken;
-    private boolean hasNextPage = false;
 
     public MainViewModel(@NonNull Application application) {
         super(application);
         this.context = application.getApplicationContext();
         homeVideo = new MutableLiveData<>();
         videoInterface = ApiClient.getInstance(
-                        Constants.HOME_VIDEO_URL_BASE_URL)
+                        ApiConstants.API_BASE_URL)
                 .create(VideoInterface.class);
 
         // Get region code
         regionCode = Utils.getRegionCode(context);
 
         //calling api
-        Call<HomeVideo> video = videoInterface.getHomeVideo(Constants.HOME_VIDEO_API_PART,
-                Constants.HOME_VIDEO_API_CHART, regionCode, Constants.HOME_VIDEO_API_MAX_RESULT,
-                Constants.HOME_VIDEO_API_KEY);
+        Call<HomeVideo> video = videoInterface.getHomeVideo(ApiConstants.API_PART_SNIPPET,
+                ApiConstants.API_CHART_MOST_POPULAR, regionCode, ApiConstants.HOME_VIDEO_API_MAX_RESULT,
+                ApiConstants.API_KEY);
 
         video.enqueue(new Callback<HomeVideo>() {
             @Override
             public void onResponse(Call<HomeVideo> call,
                                    Response<HomeVideo> response) {
                 if (response.isSuccessful()) {
-                    //homevideo = response.body();
                     if (response.body()!= null){
                         homeVideo.postValue(response.body());
                         nextPageToken = response.body().nextPageToken;
@@ -76,9 +75,9 @@ public class MainViewModel extends AndroidViewModel {
             return null;
         }
 
-        Call<HomeVideo> video = videoInterface.getHomeVideoNextPage(Constants.HOME_VIDEO_API_PART,
-                Constants.HOME_VIDEO_API_CHART, regionCode, Constants.HOME_VIDEO_API_MAX_RESULT,
-                Constants.HOME_VIDEO_API_KEY, nextPageToken);
+        Call<HomeVideo> video = videoInterface.getHomeVideoNextPage(ApiConstants.API_PART_SNIPPET,
+                ApiConstants.API_CHART_MOST_POPULAR, regionCode, ApiConstants.HOME_VIDEO_API_MAX_RESULT,
+                ApiConstants.API_KEY, nextPageToken);
         MutableLiveData<HomeVideo> nextVideo = new MutableLiveData<>();
 
         video.enqueue(new Callback<HomeVideo>() {
