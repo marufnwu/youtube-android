@@ -12,7 +12,7 @@ import com.logicline.tech.stube.api.ApiClient;
 import com.logicline.tech.stube.api.VideoInterface;
 import com.logicline.tech.stube.constants.ApiConstants;
 import com.logicline.tech.stube.models.HomeVideo;
-import com.logicline.tech.stube.constants.Constants;
+import com.logicline.tech.stube.models.SearchItem;
 import com.logicline.tech.stube.utils.Utils;
 
 import retrofit2.Call;
@@ -23,7 +23,8 @@ public class MainViewModel extends AndroidViewModel {
     private static final String TAG = "MainViewModel";
     private final String regionCode;
     private final Context context;
-    private MutableLiveData<HomeVideo> homeVideo;
+    private final MutableLiveData<HomeVideo> homeVideo;
+    private final MutableLiveData<SearchItem> searchItemMutableLiveData = new MutableLiveData<>();
     private final VideoInterface videoInterface;
     private String nextPageToken;
 
@@ -39,9 +40,8 @@ public class MainViewModel extends AndroidViewModel {
         regionCode = Utils.getRegionCode(context);
 
         //calling api
-        Call<HomeVideo> video = videoInterface.getHomeVideo(ApiConstants.API_PART_SNIPPET,
-                ApiConstants.API_CHART_MOST_POPULAR, regionCode, ApiConstants.HOME_VIDEO_API_MAX_RESULT,
-                ApiConstants.API_KEY);
+        Call<HomeVideo> video = videoInterface.getHomeVideo(ApiConstants.API_CHART_MOST_POPULAR,
+                regionCode, ApiConstants.API_KEY);
 
         video.enqueue(new Callback<HomeVideo>() {
             @Override
@@ -75,8 +75,8 @@ public class MainViewModel extends AndroidViewModel {
             return null;
         }
 
-        Call<HomeVideo> video = videoInterface.getHomeVideoNextPage(ApiConstants.API_PART_SNIPPET,
-                ApiConstants.API_CHART_MOST_POPULAR, regionCode, ApiConstants.HOME_VIDEO_API_MAX_RESULT,
+        Call<HomeVideo> video = videoInterface.getHomeVideoNextPage(
+                ApiConstants.API_CHART_MOST_POPULAR, regionCode,
                 ApiConstants.API_KEY, nextPageToken);
         MutableLiveData<HomeVideo> nextVideo = new MutableLiveData<>();
 
@@ -94,7 +94,6 @@ public class MainViewModel extends AndroidViewModel {
                         Utils.showLongLogMsg("response", response.toString());
                 }
             }
-
             @Override
             public void onFailure(Call<HomeVideo> call, Throwable t) {
                 Log.d(TAG, "onFailure: error in response");
@@ -103,5 +102,40 @@ public class MainViewModel extends AndroidViewModel {
         });
 
         return nextVideo;
+    }
+
+    public void search(String query){
+        Log.d(TAG, "search: is called");
+        Call<SearchItem> searchItemCall = videoInterface.getSearchResult(query, ApiConstants.API_KEY);
+
+        //searchItemMutableLiveData = new MutableLiveData<>();
+
+        searchItemCall.enqueue(new Callback<SearchItem>() {
+            @Override
+            public void onResponse(Call<SearchItem> call, Response<SearchItem> response) {
+                if (response.isSuccessful()) {
+                    //homevideo = response.body();
+                    if (response.body()!= null){
+                        Log.d(TAG, "onResponse: search post value");
+                        searchItemMutableLiveData.postValue(response.body());
+                        nextPageToken = response.body().nextPageToken;
+                    }
+                    else{
+                        Utils.showLongLogMsg("response", response.toString());
+                        Log.d(TAG, "onResponse: search response body is null");
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<SearchItem> call, Throwable t) {
+                Log.d(TAG, "onFailure: error in response");
+                searchItemMutableLiveData.postValue(null);
+            }
+        });
+
+    }
+    public MutableLiveData<SearchItem> getSearchResult(){
+        return searchItemMutableLiveData;
     }
 }

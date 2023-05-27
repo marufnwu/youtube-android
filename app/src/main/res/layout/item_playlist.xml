@@ -13,7 +13,16 @@
         android:scaleType="center"
         android:src="@drawable/image_placeholder"
         app:layout_constraintTop_toTopOf="parent"
-        />
+        tools:src="@drawable/image_placeholder" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:alpha="0.5"
+        android:background="@color/black"
+        android:text="Playlist"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_playlist_thumbnail" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cv_channel_avatar"
@@ -30,7 +39,6 @@
             android:id="@+id/iv_playlist_channel_avatar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/placeholder_color"
             tools:src="@mipmap/ic_launcher" />
 
     </androidx.cardview.widget.CardView>
@@ -45,7 +53,6 @@
         android:textColor="@color/black"
         android:textSize="@dimen/_11sdp"
         android:textStyle="bold"
-        android:background="@color/placeholder_color"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/cv_channel_avatar"
         app:layout_constraintTop_toTopOf="@+id/cv_channel_avatar"
@@ -53,13 +60,11 @@
 
     <TextView
         android:id="@+id/tv_playlist_channel_name"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/_2sdp"
-        android:background="@color/placeholder_color"
         android:maxLines="1"
         android:textSize="@dimen/_11sdp"
-        app:layout_constraintEnd_toEndOf="@+id/tv_playlist_title"
         app:layout_constraintStart_toStartOf="@+id/tv_playlist_title"
         app:layout_constraintTop_toBottomOf="@+id/tv_playlist_title"
         tools:text="hello world" />

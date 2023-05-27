@@ -12,6 +12,7 @@ import com.logicline.tech.stube.api.VideoInterface;
 import com.logicline.tech.stube.constants.ApiConstants;
 import com.logicline.tech.stube.models.HomeVideo;
 import com.logicline.tech.stube.models.RelatedVideo;
+import com.logicline.tech.stube.models.SearchItem;
 import com.logicline.tech.stube.utils.Utils;
 
 import retrofit2.Call;
@@ -35,8 +36,7 @@ public class PlayerViewModel extends AndroidViewModel {
 
     public MutableLiveData<RelatedVideo> getRelatedVideos(String relatedVideoId){
         Log.d(TAG, "getRelatedVideos: is called");
-        Call<RelatedVideo> video = videoInterface.getRelatedVideo(ApiConstants.API_PART_SNIPPET,
-                ApiConstants.RELATED_VIDEO_API_MAX_RESULT, ApiConstants.API_TYPE_VIDEO,
+        Call<RelatedVideo> video = videoInterface.getRelatedVideo(ApiConstants.API_TYPE_VIDEO,
                 relatedVideoId, ApiConstants.API_KEY);
 
         video.enqueue(new Callback<RelatedVideo>() {

@@ -15,6 +15,7 @@ import com.logicline.tech.stube.models.HomeVideo;
 import com.logicline.tech.stube.models.RelatedVideo;
 import com.logicline.tech.stube.utils.Utils;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -70,6 +71,10 @@ public class RelatedVideoAdapter extends RecyclerView.Adapter<RelatedVideoAdapte
     }
     public void addData(List<RelatedVideo.Item> items){
         this.items.addAll(items);
+        notifyDataSetChanged();
+    }
+    public void clearData(){
+        this.items = new ArrayList<>();
         notifyDataSetChanged();
     }
     public void setItemClickListener(ItemClickListener listener){

@@ -1,7 +1,11 @@
 package com.logicline.tech.stube.api;
 
+import androidx.annotation.NonNull;
+
+import com.logicline.tech.stube.constants.ApiConstants;
 import com.pierfrancescosoffritti.androidyoutubeplayer.BuildConfig;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -10,7 +14,11 @@ import java.util.concurrent.TimeUnit;
 
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.schedulers.Schedulers;
+import okhttp3.HttpUrl;
+import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -40,16 +48,37 @@ public class ApiClient {
             if (BuildConfig.DEBUG) {
                 builder.addInterceptor(interceptor);
             }
+            builder.addInterceptor(new Interceptor() {
+                @NonNull
+                @Override
+                public Response intercept(@NonNull Chain chain) throws IOException {
+                    Request originalRequest = chain.request();
+                    HttpUrl originalUrl = originalRequest.url();
+                    HttpUrl url = originalUrl.newBuilder()
+                            .addQueryParameter("part", ApiConstants.API_PART_SNIPPET)
+                            .addQueryParameter("maxResults", ApiConstants.HOME_VIDEO_API_MAX_RESULT + "")
+                            .build();
+
+                    Request request = originalRequest.newBuilder()
+                            .url(url)
+                            .build();
+
+                    return chain.proceed(request);
+                }
+            });
 
             client = builder.build();
 
         }
+
         Retrofit.Builder builder = new Retrofit.Builder()
                 .baseUrl(baseUrl)
                 .addConverterFactory(GsonConverterFactory.create());
 
-        if (client != null)
+        if (client != null){
             builder.client(client);
+        }
+
 
         retrofit = builder.build();
 

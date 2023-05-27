@@ -1,5 +1,6 @@
 package com.logicline.tech.stube.ui.activities.playerActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -67,7 +68,7 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void initViews() {
-        setupYoutubePlayer();
+        setupYoutubePlayer(intentData.id);
 
         binding.tvPlayerVideoTitle.setText(intentData.snippet.title);
         binding.tvPlayerVideoDescription.setText(intentData.snippet.description);
@@ -85,6 +86,27 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
 
                     //Related video list init
                     adapter = new RelatedVideoAdapter(getApplicationContext(), relatedVideo.items);
+                    //adding onclick listener
+                    adapter.setItemClickListener(new RelatedVideoAdapter.ItemClickListener() {
+                        @Override
+                        public void onClick(RelatedVideo.Item item) {
+                            /*adapter.clearData();
+                            //setupYoutubePlayer(item.id.videoId);
+                            viewModel.getRelatedVideos(item.id.videoId);*/
+
+                            /*Intent intent = new Intent(getApplicationContext(), PlayerActivity.class);
+                            String myGson = new Gson().toJson(item);
+                            intent.putExtra(Constants.PLAYER_ACTIVITY_INTENT_ITEM_KEY, myGson);
+                            startActivity(intent);*/
+
+                            adapter.clearData();
+                            mYouTubePlayer.loadVideo(item.id.videoId, 0);
+                            viewModel.getRelatedVideos(item.id.videoId);
+
+                        }
+                    });
+
+
                     binding.rvRelatedVideo.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
                     binding.rvRelatedVideo.setAdapter(adapter);
                     binding.pbPlayerRecentVideos.setVisibility(View.GONE);
@@ -113,7 +135,7 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         binding.tvPlayerVideoTitle.setOnClickListener(this);
     }
 
-    private void setupYoutubePlayer() {
+    private void setupYoutubePlayer(String videoId) {
         IFramePlayerOptions iFramePlayerOptions = new IFramePlayerOptions.Builder()
                 .controls(1)
                 .fullscreen(1) // enable full screen button
@@ -151,12 +173,13 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
                 super.onReady(youTubePlayer);
                 mYouTubePlayer = youTubePlayer;
 
-                String videoId = intentData.id;
                 if (videoId != null) {
                     youTubePlayer.loadVideo(videoId, 0);
                 }
             }
         }, iFramePlayerOptions);
+
+
 
         getLifecycle().addObserver(binding.youtubePlayerView);
     }

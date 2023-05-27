@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -20,6 +21,7 @@ import com.logicline.tech.stube.R;
 import com.logicline.tech.stube.constants.Constants;
 import com.logicline.tech.stube.databinding.ActivityMainBinding;
 import com.logicline.tech.stube.models.HomeVideo;
+import com.logicline.tech.stube.models.SearchItem;
 import com.logicline.tech.stube.ui.activities.playerActivity.PlayerActivity;
 import com.logicline.tech.stube.ui.adapters.VideoItemAdapter;
 import com.logicline.tech.stube.utils.ConnectionUtils;
@@ -60,18 +62,28 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
+        if (!binding.rvHomeVideos.isShown()){
+            binding.rvHomeVideos.setVisibility(View.VISIBLE);
+            binding.fragmentContainer.setVisibility(View.GONE);
+
+        }else
+            super.onBackPressed();
     }
 
     private void initViews() {
         binding.rvHomeVideos.setLayoutManager(new LinearLayoutManager(this));
 
+        //Init viewModel
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
         MutableLiveData<HomeVideo> homeVideoLiveData = viewModel.getHomeVideos();
+
+
         if (homeVideoLiveData != null) {
             homeVideoLiveData.observe(this, homeVideo -> {
                 if (homeVideo == null || homeVideo.items == null)
                     return;
+
+                //Create adapter for recyclerview
                 adapter = new VideoItemAdapter(getApplicationContext(), homeVideo.items);
 
                 //Handle item click
@@ -94,6 +106,7 @@ public class MainActivity extends AppCompatActivity {
         } else
             Log.d(TAG, "onChanged: home video livedata is null");
 
+        //Find end of the recyclerview and load next page
         binding.rvHomeVideos.addOnScrollListener(new RecyclerView.OnScrollListener() {
 
             @Override
@@ -126,6 +139,45 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        //Handle search view open and close
+        binding.svHomeSearch.setOnSearchClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                binding.tvLogoText.setVisibility(View.INVISIBLE);
+            }
+        });
+        binding.svHomeSearch.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                //searchview is not expanded
+                binding.tvLogoText.setVisibility(View.VISIBLE);
+                return false;
+            }
+        });
+
+        binding.svHomeSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                Log.d(TAG, "search onQueryTextSubmit: is called");
+                binding.svHomeSearch.clearFocus();
+
+                SearchFragment fragment = new SearchFragment(query);
+                getSupportFragmentManager().beginTransaction()
+                        .replace(binding.fragmentContainer.getId(), fragment)
+                        .commit();
+                binding.fragmentContainer.setVisibility(View.VISIBLE);
+                binding.rvHomeVideos.setVisibility(View.GONE);
+
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+
     }
 
     private void getNextPage() {

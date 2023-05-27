@@ -4,5 +4,7 @@
     <string name="volume">Volume</string>
     <string name="brightness">Brightness</string>
     <string name="txt_no_internet">Please Check Your Internet connection</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>
