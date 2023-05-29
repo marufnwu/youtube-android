@@ -24,6 +24,11 @@ public class ChannelViewModel extends AndroidViewModel {
     private final VideoInterface videoInterface;
     private String nextPageToken;
 
+
+    public MutableLiveData<ChannelVideo> getNextPage() {
+        return nextPage;
+    }
+
     public ChannelViewModel(@NonNull Application application) {
         super(application);
 
@@ -63,10 +68,15 @@ public class ChannelViewModel extends AndroidViewModel {
         return channelVideo;
     }
 
-    public MutableLiveData<ChannelVideo> getNextPage(String channelId) {
+    public void getNextPage(String channelId) {
         if (nextPageToken == null) {
             Log.d(TAG, "getNextPage: no next page found");
-            return null;
+            Log.d("ChannelListLogPageToken", "null");
+
+            return;
+        } else {
+            Log.d("ChannelListLogPageToken", nextPageToken);
+
         }
 
         Call<ChannelVideo> response = videoInterface.getChannelVideosNextPage(channelId,
@@ -89,6 +99,9 @@ public class ChannelViewModel extends AndroidViewModel {
                 nextPage.postValue(null);
             }
         });
-        return nextPage;
+
+
+
+
     }
 }

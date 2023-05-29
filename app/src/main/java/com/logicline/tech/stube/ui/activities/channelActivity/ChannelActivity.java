@@ -70,6 +70,16 @@ public class ChannelActivity extends AppCompatActivity {
 
         initViewModel();
         findEndOfRecyclerViewAndLoadNextPage();
+
+
+        viewModel.getNextPage().observe(this, new Observer<ChannelVideo>() {
+            @Override
+            public void onChanged(ChannelVideo channelVideo) {
+                adapter.addData(channelVideo.items);
+                isLoading = false;
+                Log.d(TAG, "getNextPage: loading finished " + channelVideo.items.size());
+            }
+        });
     }
 
     private void initViewModel(){
@@ -94,12 +104,12 @@ public class ChannelActivity extends AppCompatActivity {
      */
     private void findEndOfRecyclerViewAndLoadNextPage() {
         binding.rvChannelAVideos.addOnScrollListener(new RecyclerView.OnScrollListener() {
-
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
 
                 Log.d(TAG, "onScrolled: dy " + dy);
+
                 if (dy > 0) {
                     LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
                     if (layoutManager == null)
@@ -116,9 +126,14 @@ public class ChannelActivity extends AppCompatActivity {
                         // End of RecyclerView reached
                         Log.d(TAG, "onScrolled: last");
 
+                        Log.d("ChannelListLog", "end of page hit");
+
                         if (!isLoading) {
                             getNextPage();
                             isLoading = true;
+                        }else{
+                            Log.d("ChannelListLog", "Another page laoding");
+
                         }
                     }
                 }
@@ -131,17 +146,13 @@ public class ChannelActivity extends AppCompatActivity {
      */
     private void getNextPage() {
         Log.d(TAG, "getNextPage: is called");
-        MutableLiveData<ChannelVideo> nextPageLiveData = viewModel.getNextPage(intentData.getChannelId());
+        Log.d("ChannelListLog", "Next Page Called");
 
-        if (nextPageLiveData == null)
-            return;
-        nextPageLiveData.observe(this, new Observer<ChannelVideo>() {
-            @Override
-            public void onChanged(ChannelVideo channelVideo) {
-                adapter.addData(channelVideo.items);
-                isLoading = false;
-                Log.d(TAG, "getNextPage: loading finished " + channelVideo.items.size());
-            }
-        });
+
+        viewModel.getNextPage(intentData.getChannelId());
+
+
+
+
     }
 }
