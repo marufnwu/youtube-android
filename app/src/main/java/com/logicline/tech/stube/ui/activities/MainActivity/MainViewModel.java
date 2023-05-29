@@ -12,7 +12,6 @@ import com.logicline.tech.stube.api.ApiClient;
 import com.logicline.tech.stube.api.VideoInterface;
 import com.logicline.tech.stube.constants.ApiConstants;
 import com.logicline.tech.stube.models.HomeVideo;
-import com.logicline.tech.stube.models.SearchItem;
 import com.logicline.tech.stube.utils.Utils;
 
 import retrofit2.Call;
@@ -24,6 +23,7 @@ public class MainViewModel extends AndroidViewModel {
     private final String regionCode;
     private final Context context;
     private final MutableLiveData<HomeVideo> homeVideo;
+    private final MutableLiveData<HomeVideo> nextPage;
     private final VideoInterface videoInterface;
     private String nextPageToken;
 
@@ -31,6 +31,8 @@ public class MainViewModel extends AndroidViewModel {
         super(application);
         this.context = application.getApplicationContext();
         homeVideo = new MutableLiveData<>();
+        nextPage = new MutableLiveData<>();
+
         videoInterface = ApiClient.getInstance(
                         ApiConstants.API_BASE_URL)
                 .create(VideoInterface.class);
@@ -67,17 +69,20 @@ public class MainViewModel extends AndroidViewModel {
     public MutableLiveData<HomeVideo> getHomeVideos(){
         return homeVideo;
     }
+    public MutableLiveData<HomeVideo> getNextPage(){
+        return nextPage;
+    }
 
-    public MutableLiveData<HomeVideo> getHomeVideoNextPage(){
+    public void getHomeVideoNextPage(){
         if (nextPageToken == null){
             Log.d(TAG, "getNextPage: no next page found");
-            return null;
+            return;
         }
 
         Call<HomeVideo> video = videoInterface.getHomeVideoNextPage(
                 ApiConstants.API_CHART_MOST_POPULAR, regionCode,
                 ApiConstants.API_KEY, nextPageToken);
-        MutableLiveData<HomeVideo> nextVideo = new MutableLiveData<>();
+
 
         video.enqueue(new Callback<HomeVideo>() {
             @Override
@@ -85,7 +90,7 @@ public class MainViewModel extends AndroidViewModel {
                 if (response.isSuccessful()) {
                     //homevideo = response.body();
                     if (response.body()!= null){
-                        nextVideo.postValue(response.body());
+                        nextPage.postValue(response.body());
                         nextPageToken = response.body().nextPageToken;
                     }
 
@@ -96,11 +101,9 @@ public class MainViewModel extends AndroidViewModel {
             @Override
             public void onFailure(Call<HomeVideo> call, Throwable t) {
                 Log.d(TAG, "onFailure: error in response");
-                nextVideo.postValue(null);
+                nextPage.postValue(null);
             }
         });
-
-        return nextVideo;
     }
 
 

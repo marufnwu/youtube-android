@@ -24,11 +24,6 @@ public class ChannelViewModel extends AndroidViewModel {
     private final VideoInterface videoInterface;
     private String nextPageToken;
 
-
-    public MutableLiveData<ChannelVideo> getNextPage() {
-        return nextPage;
-    }
-
     public ChannelViewModel(@NonNull Application application) {
         super(application);
 
@@ -39,11 +34,19 @@ public class ChannelViewModel extends AndroidViewModel {
                 .create(VideoInterface.class);
     }
 
-    public MutableLiveData<ChannelVideo> getChannelVideoItems(String channelId) {
+    public MutableLiveData<ChannelVideo> getNextPage() {
+        return nextPage;
+    }
+
+    public MutableLiveData<ChannelVideo> getChannelVideo() {
+        return channelVideo;
+    }
+
+    public void getChannelVideoItems(String channelId) {
         Call<ChannelVideo> video = videoInterface.getChannelVideos(channelId,
                 ApiConstants.API_ORDER_DATE, ApiConstants.API_KEY);
         if (video == null)
-            return null;
+            return;
 
         video.enqueue(new Callback<ChannelVideo>() {
             @Override
@@ -55,7 +58,6 @@ public class ChannelViewModel extends AndroidViewModel {
                     } else {
                         Utils.showLongLogMsg("response", response.toString());
                     }
-
                 }
             }
 
@@ -65,7 +67,6 @@ public class ChannelViewModel extends AndroidViewModel {
             }
         });
 
-        return channelVideo;
     }
 
     public void getNextPage(String channelId) {
@@ -76,7 +77,6 @@ public class ChannelViewModel extends AndroidViewModel {
             return;
         } else {
             Log.d("ChannelListLogPageToken", nextPageToken);
-
         }
 
         Call<ChannelVideo> response = videoInterface.getChannelVideosNextPage(channelId,
@@ -99,9 +99,5 @@ public class ChannelViewModel extends AndroidViewModel {
                 nextPage.postValue(null);
             }
         });
-
-
-
-
     }
 }

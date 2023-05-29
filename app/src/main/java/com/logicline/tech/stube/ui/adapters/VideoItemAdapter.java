@@ -22,9 +22,8 @@ public class VideoItemAdapter extends RecyclerView.Adapter<VideoItemAdapter.vide
     private ItemClickListener mItemClickListener;
     private List<HomeVideo.Item> items;
 
-    public VideoItemAdapter(Context context, List<HomeVideo.Item> items){
+    public VideoItemAdapter(Context context){
         this.context = context;
-        this.items = items;
     }
 
     @NonNull

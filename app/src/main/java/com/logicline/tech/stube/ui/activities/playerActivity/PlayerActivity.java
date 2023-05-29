@@ -9,7 +9,6 @@ import android.view.View;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -17,7 +16,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.google.gson.Gson;
 import com.logicline.tech.stube.constants.Constants;
 import com.logicline.tech.stube.databinding.ActivityPlayerBinding;
-import com.logicline.tech.stube.models.HomeVideo;
 import com.logicline.tech.stube.models.PlayerData;
 import com.logicline.tech.stube.models.RelatedVideo;
 import com.logicline.tech.stube.ui.adapters.RelatedVideoAdapter;
@@ -50,6 +48,20 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
     };
     private PlayerData intentData;
 
+    /**
+     * sent player activity intent for client functions
+     *
+     * @param context    from which activity
+     * @param playerData data for player activity
+     * @return player intent
+     */
+    public static Intent getPlayerActivityIntent(Context context, PlayerData playerData) {
+        Intent playerActivityIntent = new Intent(context, PlayerActivity.class);
+        String data = new Gson().toJson(playerData);
+        playerActivityIntent.putExtra(Constants.PLAYER_ACTIVITY_INTENT_ITEM_KEY, data);
+        return playerActivityIntent;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,23 +84,12 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         binding.tvPlayerVideoTitle.setText(intentData.getTitle());
         binding.tvPlayerVideoDescription.setText(intentData.getDescription());
 
-        //init viewModel
-        viewModel = new ViewModelProvider(this).get(PlayerViewModel.class);
-
-        MutableLiveData<RelatedVideo> videos = viewModel.getRelatedVideos(intentData.getVideoId());
-        if (videos != null) {
-            videos.observe(this, new Observer<RelatedVideo>() {
-                @Override
-                public void onChanged(RelatedVideo relatedVideo) {
-                    if (relatedVideo == null || relatedVideo.items == null)
-                        return;
-
-                    //Related video list init
-                    adapter = new RelatedVideoAdapter(getApplicationContext(), relatedVideo.items);
-                    //adding onclick listener
-                    adapter.setItemClickListener(new RelatedVideoAdapter.ItemClickListener() {
-                        @Override
-                        public void onClick(RelatedVideo.Item item) {
+        //Related video list init
+        adapter = new RelatedVideoAdapter(getApplicationContext());
+        //adding onclick listener
+        adapter.setItemClickListener(new RelatedVideoAdapter.ItemClickListener() {
+            @Override
+            public void onClick(RelatedVideo.Item item) {
                             /*adapter.clearData();
                             //setupYoutubePlayer(item.id.videoId);
                             viewModel.getRelatedVideos(item.id.videoId);*/
@@ -98,23 +99,20 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
                             intent.putExtra(Constants.PLAYER_ACTIVITY_INTENT_ITEM_KEY, myGson);
                             startActivity(intent);*/
 
-                            adapter.clearData();
-                            mYouTubePlayer.loadVideo(item.id.videoId, 0);
-                            viewModel.getRelatedVideos(item.id.videoId);
+                adapter.clearData();
+                mYouTubePlayer.loadVideo(item.id.videoId, 0);
+                viewModel.loadRelatedVideos(item.id.videoId);
 
-                        }
-                    });
+            }
+        });
 
+        binding.rvRelatedVideo.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+        binding.rvRelatedVideo.setAdapter(adapter);
 
-                    binding.rvRelatedVideo.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-                    binding.rvRelatedVideo.setAdapter(adapter);
-                    binding.pbPlayerRecentVideos.setVisibility(View.GONE);
-                }
-            });
-        } else {
-            Log.d(TAG, "initViews: api response null");
-            binding.pbPlayerRecentVideos.setVisibility(View.GONE);
-        }
+        //init viewModel
+        viewModel = new ViewModelProvider(this).get(PlayerViewModel.class);
+
+        viewModel.loadRelatedVideos(intentData.getVideoId());
 
         /* notify nested scrollView at the end position
         binding.nsvPlayerScrollView.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
@@ -132,7 +130,42 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         });*/
 
         binding.tvPlayerVideoTitle.setOnClickListener(this);
+
+        initViewModelObserver();
     }
+
+    private void initViewModelObserver() {
+        viewModel.getRelatedVideo().observe(this, new Observer<RelatedVideo>() {
+            @Override
+            public void onChanged(RelatedVideo relatedVideo) {
+                if (relatedVideo == null || relatedVideo.items == null)
+                    return;
+
+                adapter.setData(relatedVideo.items);
+
+                binding.pbPlayerRecentVideos.setVisibility(View.GONE);
+            }
+        });
+    }
+
+    /* Get next page of related video from make api call
+    private void getNextPage(){
+        MutableLiveData<RelatedVideo> videos = viewModel.getRelatedVideoNextPage(intentData.id);
+        if (videos != null) {
+            videos.observe(this, new Observer<RelatedVideo>() {
+                @Override
+                public void onChanged(RelatedVideo relatedVideo) {
+                    if (relatedVideo == null || relatedVideo.items == null)
+                        return;
+
+                    //add new videos to the recyclerView
+                    adapter.addData(relatedVideo.items);
+                }
+            });
+        }else {
+            Log.d(TAG, "initViews: api response null");
+        }
+    }*/
 
     private void setupYoutubePlayer(String videoId) {
         IFramePlayerOptions iFramePlayerOptions = new IFramePlayerOptions.Builder()
@@ -182,25 +215,6 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         getLifecycle().addObserver(binding.youtubePlayerView);
     }
 
-    /* Get next page of related video from make api call
-    private void getNextPage(){
-        MutableLiveData<RelatedVideo> videos = viewModel.getRelatedVideoNextPage(intentData.id);
-        if (videos != null) {
-            videos.observe(this, new Observer<RelatedVideo>() {
-                @Override
-                public void onChanged(RelatedVideo relatedVideo) {
-                    if (relatedVideo == null || relatedVideo.items == null)
-                        return;
-
-                    //add new videos to the recyclerView
-                    adapter.addData(relatedVideo.items);
-                }
-            });
-        }else {
-            Log.d(TAG, "initViews: api response null");
-        }
-    }*/
-
     @Override
     public void onClick(View v) {
         //int id = v.getId();
@@ -215,18 +229,5 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
                     binding.pbPlayerRecentVideos.setVisibility(View.GONE);
             }
         }
-    }
-
-    /**
-     * sent player activity intent for client functions
-     * @param context from which activity
-     * @param playerData data for player activity
-     * @return player intent
-     */
-    public static Intent getPlayerActivityIntent(Context context, PlayerData playerData){
-        Intent playerActivityIntent = new Intent(context, PlayerActivity.class);
-        String data = new Gson().toJson(playerData);
-        playerActivityIntent.putExtra(Constants.PLAYER_ACTIVITY_INTENT_ITEM_KEY, data);
-        return playerActivityIntent;
     }
 }

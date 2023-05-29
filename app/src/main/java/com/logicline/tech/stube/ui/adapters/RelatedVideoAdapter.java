@@ -24,9 +24,8 @@ public class RelatedVideoAdapter extends RecyclerView.Adapter<RelatedVideoAdapte
     private ItemClickListener mItemClickListener;
     private List<RelatedVideo.Item> items;
 
-    public RelatedVideoAdapter(Context context, List<RelatedVideo.Item> items){
+    public RelatedVideoAdapter(Context context){
         this.context = context;
-        this.items = items;
     }
 
     @NonNull

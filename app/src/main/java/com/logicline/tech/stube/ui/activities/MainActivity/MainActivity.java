@@ -10,16 +10,13 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.facebook.shimmer.Shimmer;
-import com.google.gson.Gson;
 import com.logicline.tech.stube.R;
-import com.logicline.tech.stube.constants.Constants;
 import com.logicline.tech.stube.databinding.ActivityMainBinding;
 import com.logicline.tech.stube.models.HomeVideo;
 import com.logicline.tech.stube.models.PlayerData;
@@ -46,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (savedInstanceState != null){
+        if (savedInstanceState != null) {
             mQuery = savedInstanceState.getString(QUERY_KEY);
             isSearchViewExpanded = savedInstanceState.getBoolean(IS_SEARCH_EXPAND_KEY);
             isSearchResultFragmentIsShowing = savedInstanceState.getBoolean(IS_SEARCH_RESULT_FRAGMENT_SHOWING_KEY);
@@ -98,44 +95,36 @@ public class MainActivity extends AppCompatActivity {
         //Init viewModel
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
-        if (!isSearchViewExpanded){
+        if (!isSearchViewExpanded) {
             binding.tvLogoText.setVisibility(View.VISIBLE);
-        }else
+        } else
             binding.tvLogoText.setVisibility(View.INVISIBLE);
-        if (isSearchResultFragmentIsShowing){
+        if (isSearchResultFragmentIsShowing) {
             binding.rvHomeVideos.setVisibility(View.GONE);
             openSearchFragment();
         }
 
         binding.rvHomeVideos.setLayoutManager(new LinearLayoutManager(this));
-        MutableLiveData<HomeVideo> homeVideoLiveData = viewModel.getHomeVideos();
-        if (homeVideoLiveData != null) {
-            homeVideoLiveData.observe(this, homeVideo -> {
-                if (homeVideo == null || homeVideo.items == null)
-                    return;
 
-                //Create adapter for recyclerview
-                adapter = new VideoItemAdapter(getApplicationContext(), homeVideo.items);
+        //Create adapter for recyclerview
+        adapter = new VideoItemAdapter(getApplicationContext());
 
-                //Handle item click
-                adapter.setItemClickListener(new VideoItemAdapter.ItemClickListener() {
-                    @Override
-                    public void onClick(HomeVideo.Item item) {
-                        PlayerData playerData = new PlayerData(item.snippet.title,
-                                item.snippet.description, item.id);
-                        Intent playerIntent = PlayerActivity
-                                .getPlayerActivityIntent(MainActivity.this, playerData);
-                        startActivity(playerIntent);
-                    }
-                });
+        //Handle item click
+        adapter.setItemClickListener(new VideoItemAdapter.ItemClickListener() {
+            @Override
+            public void onClick(HomeVideo.Item item) {
+                PlayerData playerData = new PlayerData(item.snippet.title,
+                        item.snippet.description, item.id);
+                Intent playerIntent = PlayerActivity
+                        .getPlayerActivityIntent(MainActivity.this, playerData);
+                startActivity(playerIntent);
+            }
+        });
 
-                binding.rvHomeVideos.setAdapter(adapter);
-                binding.rvHomeVideos.setVisibility(View.VISIBLE);
-                binding.shimmerViewContainer.stopShimmer();
-                binding.shimmerViewContainer.setVisibility(View.GONE);
-            });
-        } else
-            Log.d(TAG, "onChanged: home video livedata is null");
+        binding.rvHomeVideos.setAdapter(adapter);
+        binding.rvHomeVideos.setVisibility(View.VISIBLE);
+
+        initViewModelObserver();
 
         //Find end of the recyclerview and load next page
         findEndOfRecyclerViewAndLoadNextPage();
@@ -146,6 +135,31 @@ public class MainActivity extends AppCompatActivity {
         //Handle search Query
         handleSearch();
 
+    }
+
+    private void initViewModelObserver() {
+        viewModel.getHomeVideos().observe(this, new Observer<HomeVideo>() {
+            @Override
+            public void onChanged(HomeVideo homeVideo) {
+                if (homeVideo != null) {
+                    adapter.setData(homeVideo.items);
+
+                    binding.shimmerViewContainer.stopShimmer();
+                    binding.shimmerViewContainer.setVisibility(View.GONE);
+                }
+            }
+        });
+
+        viewModel.getNextPage().observe(this, new Observer<HomeVideo>() {
+            @Override
+            public void onChanged(HomeVideo homeVideo) {
+                if (homeVideo != null) {
+                    adapter.addData(homeVideo.items);
+                    isLoading = false;
+                    Log.d(TAG, "getNextPage: loading finished");
+                }
+            }
+        });
     }
 
     /**
@@ -192,18 +206,8 @@ public class MainActivity extends AppCompatActivity {
      */
     private void getNextPage() {
         Log.d(TAG, "getNextPage: is called");
-        MutableLiveData<HomeVideo> homeVideoNextPageLiveData = viewModel.getHomeVideoNextPage();
+        viewModel.getHomeVideoNextPage();
 
-        if (homeVideoNextPageLiveData == null)
-            return;
-        homeVideoNextPageLiveData.observe(this, new Observer<HomeVideo>() {
-            @Override
-            public void onChanged(HomeVideo homeVideo) {
-                adapter.addData(homeVideo.items);
-                isLoading = false;
-                Log.d(TAG, "getNextPage: loading finished");
-            }
-        });
     }
 
     /**
@@ -259,7 +263,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void openSearchFragment(){
+    private void openSearchFragment() {
         getSupportFragmentManager().beginTransaction()
                 .replace(binding.fragmentContainer.getId(), new SearchFragment())
                 .commit();
