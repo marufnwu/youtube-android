@@ -48,7 +48,7 @@ public class RelatedVideoAdapter extends RecyclerView.Adapter<RelatedVideoAdapte
         Date publishDate = item.snippet.publishedAt;
 
         holder.itemBinding.tvVideoTitle.setText(videoTitle);
-        holder.itemBinding.tvChannelName.setText(channelTitle+" . " + Utils.getDateString(publishDate));
+        holder.itemBinding.tvChannelName.setText(channelTitle);
 
         Glide.with(context)
                 .load(thumbnailUrl)

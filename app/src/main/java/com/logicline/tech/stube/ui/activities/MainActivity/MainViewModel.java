@@ -24,7 +24,6 @@ public class MainViewModel extends AndroidViewModel {
     private final String regionCode;
     private final Context context;
     private final MutableLiveData<HomeVideo> homeVideo;
-    private final MutableLiveData<SearchItem> searchItemMutableLiveData = new MutableLiveData<>();
     private final VideoInterface videoInterface;
     private String nextPageToken;
 
@@ -104,38 +103,5 @@ public class MainViewModel extends AndroidViewModel {
         return nextVideo;
     }
 
-    public void search(String query){
-        Log.d(TAG, "search: is called");
-        Call<SearchItem> searchItemCall = videoInterface.getSearchResult(query, ApiConstants.API_KEY);
 
-        //searchItemMutableLiveData = new MutableLiveData<>();
-
-        searchItemCall.enqueue(new Callback<SearchItem>() {
-            @Override
-            public void onResponse(Call<SearchItem> call, Response<SearchItem> response) {
-                if (response.isSuccessful()) {
-                    //homevideo = response.body();
-                    if (response.body()!= null){
-                        Log.d(TAG, "onResponse: search post value");
-                        searchItemMutableLiveData.postValue(response.body());
-                        nextPageToken = response.body().nextPageToken;
-                    }
-                    else{
-                        Utils.showLongLogMsg("response", response.toString());
-                        Log.d(TAG, "onResponse: search response body is null");
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<SearchItem> call, Throwable t) {
-                Log.d(TAG, "onFailure: error in response");
-                searchItemMutableLiveData.postValue(null);
-            }
-        });
-
-    }
-    public MutableLiveData<SearchItem> getSearchResult(){
-        return searchItemMutableLiveData;
-    }
 }

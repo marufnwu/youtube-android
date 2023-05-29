@@ -1,15 +1,14 @@
 package com.logicline.tech.stube.ui.activities.playerActivity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.widget.NestedScrollView;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -19,9 +18,9 @@ import com.google.gson.Gson;
 import com.logicline.tech.stube.constants.Constants;
 import com.logicline.tech.stube.databinding.ActivityPlayerBinding;
 import com.logicline.tech.stube.models.HomeVideo;
+import com.logicline.tech.stube.models.PlayerData;
 import com.logicline.tech.stube.models.RelatedVideo;
 import com.logicline.tech.stube.ui.adapters.RelatedVideoAdapter;
-import com.logicline.tech.stube.ui.adapters.VideoItemAdapter;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.FullscreenListener;
@@ -49,7 +48,7 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
             }
         }
     };
-    private HomeVideo.Item intentData;
+    private PlayerData intentData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,21 +61,21 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         //getting
         Gson gson = new Gson();
         String gsonString = getIntent().getStringExtra(Constants.PLAYER_ACTIVITY_INTENT_ITEM_KEY);
-        intentData = gson.fromJson(gsonString, HomeVideo.Item.class);
+        intentData = gson.fromJson(gsonString, PlayerData.class);
 
         initViews();
     }
 
     private void initViews() {
-        setupYoutubePlayer(intentData.id);
+        setupYoutubePlayer(intentData.getVideoId());
 
-        binding.tvPlayerVideoTitle.setText(intentData.snippet.title);
-        binding.tvPlayerVideoDescription.setText(intentData.snippet.description);
+        binding.tvPlayerVideoTitle.setText(intentData.getTitle());
+        binding.tvPlayerVideoDescription.setText(intentData.getDescription());
 
         //init viewModel
         viewModel = new ViewModelProvider(this).get(PlayerViewModel.class);
 
-        MutableLiveData<RelatedVideo> videos = viewModel.getRelatedVideos(intentData.id);
+        MutableLiveData<RelatedVideo> videos = viewModel.getRelatedVideos(intentData.getVideoId());
         if (videos != null) {
             videos.observe(this, new Observer<RelatedVideo>() {
                 @Override
@@ -112,7 +111,7 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
                     binding.pbPlayerRecentVideos.setVisibility(View.GONE);
                 }
             });
-        }else {
+        } else {
             Log.d(TAG, "initViews: api response null");
             binding.pbPlayerRecentVideos.setVisibility(View.GONE);
         }
@@ -180,7 +179,6 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         }, iFramePlayerOptions);
 
 
-
         getLifecycle().addObserver(binding.youtubePlayerView);
     }
 
@@ -217,5 +215,18 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
                     binding.pbPlayerRecentVideos.setVisibility(View.GONE);
             }
         }
+    }
+
+    /**
+     * sent player activity intent for client functions
+     * @param context from which activity
+     * @param playerData data for player activity
+     * @return player intent
+     */
+    public static Intent getPlayerActivityIntent(Context context, PlayerData playerData){
+        Intent playerActivityIntent = new Intent(context, PlayerActivity.class);
+        String data = new Gson().toJson(playerData);
+        playerActivityIntent.putExtra(Constants.PLAYER_ACTIVITY_INTENT_ITEM_KEY, data);
+        return playerActivityIntent;
     }
 }

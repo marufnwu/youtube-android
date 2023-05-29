@@ -1,5 +1,6 @@
 package com.logicline.tech.stube.api;
 
+import com.logicline.tech.stube.models.ChannelVideo;
 import com.logicline.tech.stube.models.HomeVideo;
 import com.logicline.tech.stube.models.RelatedVideo;
 import com.logicline.tech.stube.models.SearchItem;
@@ -36,4 +37,14 @@ public interface VideoInterface {
     @GET("search")
     Call<SearchItem> getSearchResult(@Query("q") String query,
                                      @Query("key") String key);
+
+    @GET("search")
+    Call<ChannelVideo> getChannelVideos(@Query("channelId") String channelId,
+                                        @Query("order") String order,
+                                        @Query("key") String key);
+    @GET("search")
+    Call<ChannelVideo> getChannelVideosNextPage(@Query("channelId") String channelId,
+                                                @Query("order") String order,
+                                                @Query("key") String key,
+                                                @Query("pageToken") String pageToken);
 }
