@@ -20,6 +20,7 @@ import com.logicline.tech.stube.R;
 import com.logicline.tech.stube.databinding.ActivityMainBinding;
 import com.logicline.tech.stube.models.HomeVideo;
 import com.logicline.tech.stube.models.PlayerData;
+import com.logicline.tech.stube.ui.activities.channelActivity.ChannelActivity;
 import com.logicline.tech.stube.ui.activities.playerActivity.PlayerActivity;
 import com.logicline.tech.stube.ui.adapters.VideoItemAdapter;
 import com.logicline.tech.stube.ui.fragments.SearchFragment;
@@ -112,13 +113,24 @@ public class MainActivity extends AppCompatActivity {
         //Handle item click
         adapter.setItemClickListener(new VideoItemAdapter.ItemClickListener() {
             @Override
-            public void onClick(HomeVideo.Item item) {
+            public void onVideoClick(HomeVideo.Item item) {
                 PlayerData playerData = new PlayerData(item.snippet.title,
                         item.snippet.description, item.id);
                 Intent playerIntent = PlayerActivity
                         .getPlayerActivityIntent(MainActivity.this, playerData);
                 startActivity(playerIntent);
             }
+
+            @Override
+            public void onChannelClick(HomeVideo.Item item) {
+                Intent channelIntent = ChannelActivity.getChannelActivityIntent(getApplicationContext(), item.snippet.channelId);
+                startActivity(channelIntent);
+            }
+
+           /* @Override
+            public void onClick(HomeVideo.Item item) {
+
+            }*/
         });
 
         binding.rvHomeVideos.setAdapter(adapter);

@@ -36,19 +36,20 @@ public class PlayerViewModel extends AndroidViewModel {
         return apiResponse;
     }
 
-    public void loadRelatedVideos(String relatedVideoId){
+    public void loadRelatedVideos(String relatedVideoId) {
         Log.d(TAG, "getRelatedVideos: is called");
-        Call<RelatedVideo> video = videoInterface.getRelatedVideo(ApiConstants.API_TYPE_VIDEO,
+        Call<RelatedVideo> video = videoInterface.getRelatedVideo(
+                ApiConstants.API_PART_SNIPPET, ApiConstants.API_TYPE_VIDEO,
                 relatedVideoId, ApiConstants.API_KEY);
 
         video.enqueue(new Callback<RelatedVideo>() {
             @Override
             public void onResponse(Call<RelatedVideo> call, Response<RelatedVideo> response) {
-                if (response.isSuccessful()){
-                    if (response.body()!= null){
+                if (response.isSuccessful()) {
+                    if (response.body() != null) {
                         apiResponse.postValue(response.body());
                         nextPageToken = response.body().nextPageToken;
-                    }else
+                    } else
                         Utils.showLongLogMsg("response related video", response.toString());
                 }
             }

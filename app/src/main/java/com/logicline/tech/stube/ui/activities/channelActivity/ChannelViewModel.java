@@ -10,6 +10,7 @@ import androidx.lifecycle.MutableLiveData;
 import com.logicline.tech.stube.api.ApiClient;
 import com.logicline.tech.stube.api.VideoInterface;
 import com.logicline.tech.stube.constants.ApiConstants;
+import com.logicline.tech.stube.models.ChannelDetails;
 import com.logicline.tech.stube.models.ChannelVideo;
 import com.logicline.tech.stube.utils.Utils;
 
@@ -21,6 +22,7 @@ public class ChannelViewModel extends AndroidViewModel {
     private static final String TAG = "ChannelViewModel";
     private final MutableLiveData<ChannelVideo> channelVideo;
     private final MutableLiveData<ChannelVideo> nextPage;
+    private final MutableLiveData<ChannelDetails> channelDetails;
     private final VideoInterface videoInterface;
     private String nextPageToken;
 
@@ -29,6 +31,8 @@ public class ChannelViewModel extends AndroidViewModel {
 
         channelVideo = new MutableLiveData<>();
         nextPage = new MutableLiveData<>();
+        channelDetails = new MutableLiveData<>();
+
         videoInterface = ApiClient.getInstance(
                         ApiConstants.API_BASE_URL)
                 .create(VideoInterface.class);
@@ -42,9 +46,14 @@ public class ChannelViewModel extends AndroidViewModel {
         return channelVideo;
     }
 
-    public void getChannelVideoItems(String channelId) {
-        Call<ChannelVideo> video = videoInterface.getChannelVideos(channelId,
-                ApiConstants.API_ORDER_DATE, ApiConstants.API_KEY);
+    public MutableLiveData<ChannelDetails> getChannelDetails() {
+        return channelDetails;
+    }
+
+    public void loadChannelVideoItems(String channelId) {
+        Call<ChannelVideo> video = videoInterface.getChannelVideos(ApiConstants.API_PART_SNIPPET,
+                channelId, ApiConstants.API_ORDER_DATE,
+                ApiConstants.API_TYPE_VIDEO, ApiConstants.API_KEY);
         if (video == null)
             return;
 
@@ -69,7 +78,7 @@ public class ChannelViewModel extends AndroidViewModel {
 
     }
 
-    public void getNextPage(String channelId) {
+    public void loadNextPage(String channelId) {
         if (nextPageToken == null) {
             Log.d(TAG, "getNextPage: no next page found");
             Log.d("ChannelListLogPageToken", "null");
@@ -79,8 +88,9 @@ public class ChannelViewModel extends AndroidViewModel {
             Log.d("ChannelListLogPageToken", nextPageToken);
         }
 
-        Call<ChannelVideo> response = videoInterface.getChannelVideosNextPage(channelId,
-                ApiConstants.API_ORDER_DATE, ApiConstants.API_KEY, nextPageToken);
+        Call<ChannelVideo> response = videoInterface.getChannelVideosNextPage(ApiConstants.API_PART_SNIPPET,
+                channelId, ApiConstants.API_ORDER_DATE,
+                ApiConstants.API_TYPE_VIDEO, ApiConstants.API_KEY, nextPageToken);
         response.enqueue(new Callback<ChannelVideo>() {
             @Override
             public void onResponse(Call<ChannelVideo> call, Response<ChannelVideo> response) {
@@ -97,6 +107,31 @@ public class ChannelViewModel extends AndroidViewModel {
             @Override
             public void onFailure(Call<ChannelVideo> call, Throwable t) {
                 nextPage.postValue(null);
+            }
+        });
+    }
+
+    public void loadChannelDetails(String channelId) {
+        Call<ChannelDetails> details = videoInterface.getChannelDetails(
+                ApiConstants.API_PART_SNIPPET, ApiConstants.API_PART_STATISTICS,
+                channelId, ApiConstants.API_KEY
+        );
+
+        if (details == null)
+            return;
+        details.enqueue(new Callback<ChannelDetails>() {
+            @Override
+            public void onResponse(Call<ChannelDetails> call, Response<ChannelDetails> response) {
+                if (response.body() != null) {
+                    channelDetails.postValue(response.body());
+                } else {
+                    Utils.showLongLogMsg("response", response.toString());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ChannelDetails> call, Throwable t) {
+                channelDetails.postValue(null);
             }
         });
     }

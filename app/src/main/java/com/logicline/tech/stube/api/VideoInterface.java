@@ -1,5 +1,6 @@
 package com.logicline.tech.stube.api;
 
+import com.logicline.tech.stube.models.ChannelDetails;
 import com.logicline.tech.stube.models.ChannelVideo;
 import com.logicline.tech.stube.models.HomeVideo;
 import com.logicline.tech.stube.models.RelatedVideo;
@@ -12,39 +13,61 @@ import retrofit2.http.Query;
 public interface VideoInterface {
 
     @GET("videos")
-    Call<HomeVideo> getHomeVideo(@Query("chart") String chart,
+    Call<HomeVideo> getHomeVideo(@Query("part") String part,
+                                 @Query("chart") String chart,
                                  @Query("regionCode") String regionCode,
                                  @Query("key") String key);
 
 
     @GET("videos")
-    Call<HomeVideo> getHomeVideoNextPage(@Query("chart") String chart,
+    Call<HomeVideo> getHomeVideoNextPage(@Query("part") String part,
+                                         @Query("chart") String chart,
                                          @Query("regionCode") String regionCode,
                                          @Query("key") String key,
                                          @Query("pageToken") String pageToken);
 
     @GET("search")
-    Call<RelatedVideo> getRelatedVideo(@Query("type") String type,
+    Call<RelatedVideo> getRelatedVideo(@Query("part") String part,
+                                       @Query("type") String type,
                                        @Query("relatedToVideoId") String relatedVideoId,
                                        @Query("key") String key);
 
     @GET("search")
-    Call<RelatedVideo> getRelatedVideoNextPage(@Query("type") String type,
+    Call<RelatedVideo> getRelatedVideoNextPage(@Query("part") String part,
+                                               @Query("type") String type,
                                                @Query("relatedToVideoId") String relatedVideoId,
                                                @Query("key") String key,
                                                @Query("pageToken") String pageToken);
 
     @GET("search")
-    Call<SearchItem> getSearchResult(@Query("q") String query,
+    Call<SearchItem> getSearchResult(@Query("part") String part,
+                                     @Query("q") String query,
                                      @Query("key") String key);
 
     @GET("search")
-    Call<ChannelVideo> getChannelVideos(@Query("channelId") String channelId,
-                                        @Query("order") String order,
-                                        @Query("key") String key);
+    Call<SearchItem> getSearchResultNextPage(@Query("part") String part,
+                                             @Query("q") String query,
+                                             @Query("key") String key,
+                                             @Query("pageToken") String pageToken);
+
     @GET("search")
-    Call<ChannelVideo> getChannelVideosNextPage(@Query("channelId") String channelId,
+    Call<ChannelVideo> getChannelVideos(@Query("part") String part,
+                                        @Query("channelId") String channelId,
+                                        @Query("order") String order,
+                                        @Query("type") String type,
+                                        @Query("key") String key);
+
+    @GET("search")
+    Call<ChannelVideo> getChannelVideosNextPage(@Query("part") String part,
+                                                @Query("channelId") String channelId,
                                                 @Query("order") String order,
+                                                @Query("type") String type,
                                                 @Query("key") String key,
                                                 @Query("pageToken") String pageToken);
+
+    @GET("channels")
+    Call<ChannelDetails> getChannelDetails(@Query("part") String part,
+                                           @Query("part") String part1,
+                                           @Query("id") String id,
+                                           @Query("key") String key);
 }

@@ -41,7 +41,8 @@ public class MainViewModel extends AndroidViewModel {
         regionCode = Utils.getRegionCode(context);
 
         //calling api
-        Call<HomeVideo> video = videoInterface.getHomeVideo(ApiConstants.API_CHART_MOST_POPULAR,
+        Call<HomeVideo> video = videoInterface.getHomeVideo(
+                ApiConstants.API_PART_SNIPPET, ApiConstants.API_CHART_MOST_POPULAR,
                 regionCode, ApiConstants.API_KEY);
 
         video.enqueue(new Callback<HomeVideo>() {
@@ -49,11 +50,10 @@ public class MainViewModel extends AndroidViewModel {
             public void onResponse(Call<HomeVideo> call,
                                    Response<HomeVideo> response) {
                 if (response.isSuccessful()) {
-                    if (response.body()!= null){
+                    if (response.body() != null) {
                         homeVideo.postValue(response.body());
                         nextPageToken = response.body().nextPageToken;
-                    }
-                    else
+                    } else
                         Utils.showLongLogMsg("response", response.toString());
                 }
             }
@@ -66,21 +66,22 @@ public class MainViewModel extends AndroidViewModel {
         });
     }
 
-    public MutableLiveData<HomeVideo> getHomeVideos(){
+    public MutableLiveData<HomeVideo> getHomeVideos() {
         return homeVideo;
     }
-    public MutableLiveData<HomeVideo> getNextPage(){
+
+    public MutableLiveData<HomeVideo> getNextPage() {
         return nextPage;
     }
 
-    public void getHomeVideoNextPage(){
-        if (nextPageToken == null){
+    public void getHomeVideoNextPage() {
+        if (nextPageToken == null) {
             Log.d(TAG, "getNextPage: no next page found");
             return;
         }
 
         Call<HomeVideo> video = videoInterface.getHomeVideoNextPage(
-                ApiConstants.API_CHART_MOST_POPULAR, regionCode,
+                ApiConstants.API_PART_SNIPPET, ApiConstants.API_CHART_MOST_POPULAR, regionCode,
                 ApiConstants.API_KEY, nextPageToken);
 
 
@@ -89,15 +90,14 @@ public class MainViewModel extends AndroidViewModel {
             public void onResponse(Call<HomeVideo> call, Response<HomeVideo> response) {
                 if (response.isSuccessful()) {
                     //homevideo = response.body();
-                    if (response.body()!= null){
+                    if (response.body() != null) {
                         nextPage.postValue(response.body());
                         nextPageToken = response.body().nextPageToken;
-                    }
-
-                    else
+                    } else
                         Utils.showLongLogMsg("response", response.toString());
                 }
             }
+
             @Override
             public void onFailure(Call<HomeVideo> call, Throwable t) {
                 Log.d(TAG, "onFailure: error in response");

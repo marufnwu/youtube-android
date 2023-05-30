@@ -5,11 +5,9 @@ import com.google.gson.annotations.SerializedName;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class SearchItem {
+public class ChannelDetails {
     public String kind;
     public String etag;
-    public String nextPageToken;
-    public String regionCode;
     public PageInfo pageInfo;
     public ArrayList<Item> items;
 
@@ -25,18 +23,17 @@ public class SearchItem {
         public int height;
     }
 
-    public class Id {
-        public String kind;
-        public String channelId;
-        public String videoId;
-        public String playlistId;
-    }
-
     public class Item {
         public String kind;
         public String etag;
-        public Id id;
+        public String id;
         public Snippet snippet;
+        public Statistics statistics;
+    }
+
+    public class Localized {
+        public String title;
+        public String description;
     }
 
     public class Medium {
@@ -51,14 +48,20 @@ public class SearchItem {
     }
 
     public class Snippet {
-        public Date publishedAt;
-        public String channelId;
         public String title;
         public String description;
+        public String customUrl;
+        public Date publishedAt;
         public Thumbnails thumbnails;
-        public String channelTitle;
-        public String liveBroadcastContent;
-        public Date publishTime;
+        public Localized localized;
+        public String country;
+    }
+
+    public class Statistics {
+        public String viewCount;
+        public String subscriberCount;
+        public boolean hiddenSubscriberCount;
+        public String videoCount;
     }
 
     public class Thumbnails {

@@ -18,11 +18,11 @@ import java.util.Date;
 import java.util.List;
 
 public class VideoItemAdapter extends RecyclerView.Adapter<VideoItemAdapter.videoViewHolder> {
-    private Context context;
+    private final Context context;
     private ItemClickListener mItemClickListener;
     private List<HomeVideo.Item> items;
 
-    public VideoItemAdapter(Context context){
+    public VideoItemAdapter(Context context) {
         this.context = context;
     }
 
@@ -45,7 +45,7 @@ public class VideoItemAdapter extends RecyclerView.Adapter<VideoItemAdapter.vide
         Date publishDate = item.snippet.publishedAt;
 
         holder.itemBinding.tvVideoTitle.setText(videoTitle);
-        holder.itemBinding.tvChannelName.setText(channelTitle+" . " + Utils.getDateString(publishDate));
+        holder.itemBinding.tvChannelName.setText(channelTitle + " . " + Utils.getDateString(publishDate));
 
         Glide.with(context)
                 .load(thumbnailUrl)
@@ -62,21 +62,25 @@ public class VideoItemAdapter extends RecyclerView.Adapter<VideoItemAdapter.vide
         return items.size();
     }
 
-    public void setData(List<HomeVideo.Item> items){
+    public void setData(List<HomeVideo.Item> items) {
         this.items = items;
         notifyDataSetChanged();
     }
-    public void addData(List<HomeVideo.Item> items){
+
+    public void addData(List<HomeVideo.Item> items) {
         this.items.addAll(items);
         notifyDataSetChanged();
     }
-    public void setItemClickListener(ItemClickListener listener){
+
+    public void setItemClickListener(ItemClickListener listener) {
         this.mItemClickListener = listener;
     }
 
 
-    public interface ItemClickListener{
-        void onClick(HomeVideo.Item item);
+    public interface ItemClickListener {
+        void onVideoClick(HomeVideo.Item item);
+
+        void onChannelClick(HomeVideo.Item item);
     }
 
     class videoViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -86,14 +90,24 @@ public class VideoItemAdapter extends RecyclerView.Adapter<VideoItemAdapter.vide
             super(itemView);
             itemBinding = ItemHomeVideoBinding.bind(itemView);
 
-            itemView.setOnClickListener(this);
+            //itemView.setOnClickListener(this);
+            itemBinding.tvVideoTitle.setOnClickListener(this);
+            itemBinding.ivVideoItemThumbnail.setOnClickListener(this);
+            itemBinding.tvChannelName.setOnClickListener(this);
+            itemBinding.ivChannelAvatar.setOnClickListener(this);
         }
 
         @Override
         public void onClick(View v) {
             int position = getAbsoluteAdapterPosition();
-            if (mItemClickListener != null)
-                mItemClickListener.onClick(items.get(position));
+            HomeVideo.Item item = items.get(position);
+            if (mItemClickListener != null) {
+                if (v == itemBinding.ivVideoItemThumbnail || v == itemBinding.tvVideoTitle)
+                    mItemClickListener.onVideoClick(item);
+                else if (v == itemBinding.ivChannelAvatar || v == itemBinding.tvChannelName) {
+                    mItemClickListener.onChannelClick(item);
+                }
+            }
         }
     }
 

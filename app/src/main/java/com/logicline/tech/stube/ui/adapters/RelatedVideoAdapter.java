@@ -11,20 +11,18 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.logicline.tech.stube.R;
 import com.logicline.tech.stube.databinding.ItemHomeVideoBinding;
-import com.logicline.tech.stube.models.HomeVideo;
 import com.logicline.tech.stube.models.RelatedVideo;
-import com.logicline.tech.stube.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 public class RelatedVideoAdapter extends RecyclerView.Adapter<RelatedVideoAdapter.videoViewHolder> {
-    private Context context;
+    private final Context context;
     private ItemClickListener mItemClickListener;
     private List<RelatedVideo.Item> items;
 
-    public RelatedVideoAdapter(Context context){
+    public RelatedVideoAdapter(Context context) {
         this.context = context;
     }
 
@@ -64,25 +62,30 @@ public class RelatedVideoAdapter extends RecyclerView.Adapter<RelatedVideoAdapte
         return items.size();
     }
 
-    public void setData(List<RelatedVideo.Item> items){
+    public void setData(List<RelatedVideo.Item> items) {
         this.items = items;
         notifyDataSetChanged();
     }
-    public void addData(List<RelatedVideo.Item> items){
+
+    public void addData(List<RelatedVideo.Item> items) {
         this.items.addAll(items);
         notifyDataSetChanged();
     }
-    public void clearData(){
+
+    public void clearData() {
         this.items = new ArrayList<>();
         notifyDataSetChanged();
     }
-    public void setItemClickListener(ItemClickListener listener){
+
+    public void setItemClickListener(ItemClickListener listener) {
         this.mItemClickListener = listener;
     }
 
 
-    public interface ItemClickListener{
-        void onClick(RelatedVideo.Item item);
+    public interface ItemClickListener {
+        void onVideoClick(RelatedVideo.Item item);
+
+        void onChannelClick(RelatedVideo.Item item);
     }
 
     class videoViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -92,14 +95,23 @@ public class RelatedVideoAdapter extends RecyclerView.Adapter<RelatedVideoAdapte
             super(itemView);
             itemBinding = ItemHomeVideoBinding.bind(itemView);
 
-            itemView.setOnClickListener(this);
+            itemBinding.tvVideoTitle.setOnClickListener(this);
+            itemBinding.ivVideoItemThumbnail.setOnClickListener(this);
+            itemBinding.tvChannelName.setOnClickListener(this);
+            itemBinding.ivChannelAvatar.setOnClickListener(this);
         }
 
         @Override
         public void onClick(View v) {
             int position = getAbsoluteAdapterPosition();
-            if (mItemClickListener != null)
-                mItemClickListener.onClick(items.get(position));
+            RelatedVideo.Item item = items.get(position);
+            if (mItemClickListener != null) {
+                if (v == itemBinding.ivVideoItemThumbnail || v == itemBinding.tvVideoTitle)
+                    mItemClickListener.onVideoClick(item);
+                else if (v == itemBinding.ivChannelAvatar || v == itemBinding.tvChannelName) {
+                    mItemClickListener.onChannelClick(item);
+                }
+            }
         }
     }
 

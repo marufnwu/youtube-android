@@ -55,7 +55,6 @@ public class ApiClient {
                     Request originalRequest = chain.request();
                     HttpUrl originalUrl = originalRequest.url();
                     HttpUrl url = originalUrl.newBuilder()
-                            .addQueryParameter("part", ApiConstants.API_PART_SNIPPET)
                             .addQueryParameter("maxResults", ApiConstants.HOME_VIDEO_API_MAX_RESULT + "")
                             .build();
 
@@ -75,7 +74,7 @@ public class ApiClient {
                 .baseUrl(baseUrl)
                 .addConverterFactory(GsonConverterFactory.create());
 
-        if (client != null){
+        if (client != null) {
             builder.client(client);
         }
 

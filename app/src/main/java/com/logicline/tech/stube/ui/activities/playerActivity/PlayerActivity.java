@@ -18,6 +18,7 @@ import com.logicline.tech.stube.constants.Constants;
 import com.logicline.tech.stube.databinding.ActivityPlayerBinding;
 import com.logicline.tech.stube.models.PlayerData;
 import com.logicline.tech.stube.models.RelatedVideo;
+import com.logicline.tech.stube.ui.activities.channelActivity.ChannelActivity;
 import com.logicline.tech.stube.ui.adapters.RelatedVideoAdapter;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener;
@@ -89,21 +90,18 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         //adding onclick listener
         adapter.setItemClickListener(new RelatedVideoAdapter.ItemClickListener() {
             @Override
-            public void onClick(RelatedVideo.Item item) {
-                            /*adapter.clearData();
-                            //setupYoutubePlayer(item.id.videoId);
-                            viewModel.getRelatedVideos(item.id.videoId);*/
-
-                            /*Intent intent = new Intent(getApplicationContext(), PlayerActivity.class);
-                            String myGson = new Gson().toJson(item);
-                            intent.putExtra(Constants.PLAYER_ACTIVITY_INTENT_ITEM_KEY, myGson);
-                            startActivity(intent);*/
-
+            public void onVideoClick(RelatedVideo.Item item) {
                 adapter.clearData();
                 mYouTubePlayer.loadVideo(item.id.videoId, 0);
                 viewModel.loadRelatedVideos(item.id.videoId);
-
             }
+
+            @Override
+            public void onChannelClick(RelatedVideo.Item item) {
+                Intent channelIntent = ChannelActivity.getChannelActivityIntent(getApplicationContext(), item.snippet.channelId);
+                startActivity(channelIntent);
+            }
+
         });
 
         binding.rvRelatedVideo.setLayoutManager(new LinearLayoutManager(getApplicationContext()));

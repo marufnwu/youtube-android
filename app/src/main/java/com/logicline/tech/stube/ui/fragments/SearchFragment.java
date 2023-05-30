@@ -17,10 +17,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.gson.Gson;
 import com.logicline.tech.stube.R;
-import com.logicline.tech.stube.constants.Constants;
-import com.logicline.tech.stube.models.ChannelData;
 import com.logicline.tech.stube.models.PlayerData;
 import com.logicline.tech.stube.models.SearchItem;
 import com.logicline.tech.stube.ui.activities.channelActivity.ChannelActivity;
@@ -34,6 +31,7 @@ public class SearchFragment extends Fragment {
     private ProgressBar loadingPb;
     private RecyclerView searchResult;
     private String query;
+    private boolean isLoading = false;
 
     public SearchFragment() {
         // Required empty public constructor
@@ -53,6 +51,7 @@ public class SearchFragment extends Fragment {
         if (query != null) {
             viewModel.search(query);
         }
+        initViewModelObservers();
     }
 
     @Override
@@ -99,33 +98,80 @@ public class SearchFragment extends Fragment {
                 Log.d(TAG, "onClickChannel: is called");
                 Toast.makeText(getActivity(), "Channel clicked", Toast.LENGTH_SHORT).show();
 
-                ChannelData data = new ChannelData(item.id.channelId, item.snippet.title,
-                        item.snippet.description, item.snippet.thumbnails.high.url);
-                Intent intent = new Intent(getContext(), ChannelActivity.class);
-                String dataString = new Gson().toJson(data);
-                intent.putExtra(Constants.CHANNEL_ACTIVITY_INTENT_DATA_KEY, dataString);
+                Intent intent = ChannelActivity.getChannelActivityIntent(getActivity(), item.id.channelId);
                 startActivity(intent);
             }
         });
 
         searchResult.setAdapter(adapter);
 
+        findEndOfRecyclerView();
+
         Log.d(TAG, "search onCreateView: is called");
 
+        return view;
+    }
+
+    private void initViewModelObservers() {
         MutableLiveData<SearchItem> data = viewModel.getSearchResult();
         if (data != null) {
             Log.d(TAG, "onCreateView: search data is not null ");
-            data.observe(getViewLifecycleOwner(), new Observer<SearchItem>() {
+            data.observe(this, new Observer<SearchItem>() {
                 @Override
                 public void onChanged(SearchItem searchItem) {
-                    Log.d(TAG, "onChanged: search items size " + searchItem.items.size());
-                    adapter.setData(searchItem.items);
-                    loadingPb.setVisibility(View.GONE);
+                    if (searchItem != null) {
+                        Log.d(TAG, "onChanged: search items size " + searchItem.items.size());
+                        adapter.setData(searchItem.items);
+                        loadingPb.setVisibility(View.GONE);
+                    }
                 }
             });
         } else {
             Log.d(TAG, "search onCreateView: data is null");
         }
-        return view;
+
+        viewModel.getSearchResultNextPage().observe(this, new Observer<SearchItem>() {
+            @Override
+            public void onChanged(SearchItem searchItem) {
+                if (searchItem != null) {
+                    adapter.addData(searchItem.items);
+                    isLoading = false;
+                }
+            }
+        });
+    }
+
+    private void findEndOfRecyclerView() {
+        searchResult.addOnScrollListener(new RecyclerView.OnScrollListener() {
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                Log.d(TAG, "onScrolled: dy " + dy);
+                if (dy > 0) {
+                    LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                    if (layoutManager == null)
+                        return;
+                    int visibleItemCount = layoutManager.getChildCount();
+                    int totalItemCount = layoutManager.getItemCount();
+                    int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
+
+                    Log.d(TAG, "onScrolled: total item count " + totalItemCount);
+                    Log.d(TAG, "onScrolled: visible item count " + visibleItemCount);
+                    Log.d(TAG, "onScrolled: first visible item position " + firstVisibleItemPosition);
+
+                    if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount) {
+                        // End of RecyclerView reached
+                        Log.d(TAG, "onScrolled: last");
+
+                        if (!isLoading) {
+                            viewModel.nextPage(query);
+                            isLoading = true;
+                        }
+                    }
+                }
+            }
+        });
     }
 }

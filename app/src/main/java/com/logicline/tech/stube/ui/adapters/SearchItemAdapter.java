@@ -159,14 +159,24 @@ public class SearchItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
             videoBinding = ItemHomeVideoBinding.bind(itemView);
 
-            itemView.setOnClickListener(this);
+            videoBinding.tvVideoTitle.setOnClickListener(this);
+            videoBinding.tvChannelName.setOnClickListener(this);
+            videoBinding.ivChannelAvatar.setOnClickListener(this);
+            videoBinding.ivVideoItemThumbnail.setOnClickListener(this);
         }
 
         @Override
         public void onClick(View v) {
             int position = getAbsoluteAdapterPosition();
+            SearchItem.Item item = items.get(position);
+            int viewId = v.getId();
             if (mItemClickListener != null)
-                mItemClickListener.onClickVideo(items.get(position));
+                if (viewId == R.id.iv_video_item_thumbnail || viewId == R.id.tv_video_title) {
+                    mItemClickListener.onClickVideo(item);
+                } else if (viewId == R.id.iv_channel_avatar || viewId == R.id.tv_channel_name) {
+                    mItemClickListener.onClickChannel(item);
+                }
+
         }
     }
 
@@ -178,14 +188,24 @@ public class SearchItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             super(itemView);
 
             playlistBinding = ItemPlaylistBinding.bind(itemView);
-            itemView.setOnClickListener(this);
+
+            playlistBinding.ivPlaylistThumbnail.setOnClickListener(this);
+            playlistBinding.ivPlaylistChannelAvatar.setOnClickListener(this);
+            playlistBinding.tvPlaylistTitle.setOnClickListener(this);
+            playlistBinding.tvPlaylistChannelName.setOnClickListener(this);
         }
 
         @Override
         public void onClick(View v) {
             int position = getAbsoluteAdapterPosition();
+            SearchItem.Item item = items.get(position);
+            int viewId = v.getId();
             if (mItemClickListener != null) {
-                mItemClickListener.onClickPlaylist(items.get(position));
+                if (viewId == R.id.iv_playlist_thumbnail || viewId == R.id.tv_playlist_title) {
+                    mItemClickListener.onClickPlaylist(item);
+                } else if (viewId == R.id.iv_playlist_channel_avatar || viewId == R.id.tv_playlist_channel_name) {
+                    mItemClickListener.onClickChannel(item);
+                }
             }
         }
     }
