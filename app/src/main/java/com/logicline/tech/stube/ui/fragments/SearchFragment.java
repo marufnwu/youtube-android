@@ -18,7 +18,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.logicline.tech.stube.R;
-import com.logicline.tech.stube.models.PlayerData;
 import com.logicline.tech.stube.models.SearchItem;
 import com.logicline.tech.stube.ui.activities.channelActivity.ChannelActivity;
 import com.logicline.tech.stube.ui.activities.playerActivity.PlayerActivity;
@@ -79,10 +78,8 @@ public class SearchFragment extends Fragment {
                 startActivity(intent);*/
 
                 Toast.makeText(getActivity(), "video clicked", Toast.LENGTH_SHORT).show();
-                PlayerData playerData = new PlayerData(item.snippet.title,
-                        item.snippet.description, item.id.videoId);
                 Intent videoIntent = PlayerActivity
-                        .getPlayerActivityIntent(getActivity(), playerData);
+                        .getPlayerActivityIntent(getActivity(), item.id.videoId);
                 startActivity(videoIntent);
             }
 

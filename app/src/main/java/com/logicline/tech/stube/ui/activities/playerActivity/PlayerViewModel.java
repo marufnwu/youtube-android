@@ -10,7 +10,9 @@ import androidx.lifecycle.MutableLiveData;
 import com.logicline.tech.stube.api.ApiClient;
 import com.logicline.tech.stube.api.VideoInterface;
 import com.logicline.tech.stube.constants.ApiConstants;
+import com.logicline.tech.stube.models.CommentThread;
 import com.logicline.tech.stube.models.RelatedVideo;
+import com.logicline.tech.stube.models.VideoDetails;
 import com.logicline.tech.stube.utils.Utils;
 
 import retrofit2.Call;
@@ -20,6 +22,8 @@ import retrofit2.Response;
 public class PlayerViewModel extends AndroidViewModel {
     private static final String TAG = "PlayerViewModel";
     private final MutableLiveData<RelatedVideo> apiResponse;
+    private final MutableLiveData<VideoDetails> videoDetails;
+    private final MutableLiveData<CommentThread> commentThreadMutableLiveData;
     private final VideoInterface videoInterface;
     private String nextPageToken;
 
@@ -27,6 +31,9 @@ public class PlayerViewModel extends AndroidViewModel {
         super(application);
 
         apiResponse = new MutableLiveData<>();
+        videoDetails = new MutableLiveData<>();
+        commentThreadMutableLiveData = new MutableLiveData<>();
+
         videoInterface = ApiClient.getInstance(ApiConstants.API_BASE_URL)
                 .create(VideoInterface.class);
 
@@ -34,6 +41,12 @@ public class PlayerViewModel extends AndroidViewModel {
 
     public MutableLiveData<RelatedVideo> getRelatedVideo() {
         return apiResponse;
+    }
+    public MutableLiveData<VideoDetails> getVideoDetails(){
+        return videoDetails;
+    }
+    public MutableLiveData<CommentThread> getCommentThread(){
+        return commentThreadMutableLiveData;
     }
 
     public void loadRelatedVideos(String relatedVideoId) {
@@ -98,4 +111,52 @@ public class PlayerViewModel extends AndroidViewModel {
         });
         return apiResponseNextPage;
     }*/
+
+    public void loadVideoDetails(String videoId){
+        Call<VideoDetails> videoDetailsCall = videoInterface.getVideoDetails(ApiConstants.API_PART_STATISTICS,
+                ApiConstants.API_PART_SNIPPET,
+                videoId, ApiConstants.API_KEY);
+
+        videoDetailsCall.enqueue(new Callback<VideoDetails>() {
+            @Override
+            public void onResponse(Call<VideoDetails> call, Response<VideoDetails> response) {
+                if (response.isSuccessful()) {
+                    if (response.body() != null) {
+                        videoDetails.postValue(response.body());
+                    } else
+                        Utils.showLongLogMsg("response video details ", response.toString());
+                }
+            }
+            @Override
+            public void onFailure(Call<VideoDetails> call, Throwable t) {
+                Log.d(TAG, "onFailure: error in response");
+                Log.d(TAG, "onFailure: " + t);
+                apiResponse.postValue(null);
+            }
+        });
+    }
+
+    public void loadCommentThread(String videoId){
+        Call<CommentThread> commentThreadCall =
+                videoInterface.getCommentThread(ApiConstants.API_PART_SNIPPET,
+                videoId, ApiConstants.API_KEY);
+        commentThreadCall.enqueue(new Callback<CommentThread>() {
+            @Override
+            public void onResponse(Call<CommentThread> call, Response<CommentThread> response) {
+                if (response.isSuccessful()) {
+                    if (response.body() != null) {
+                        commentThreadMutableLiveData.postValue(response.body());
+                    } else
+                        Utils.showLongLogMsg("response video commentThread ", response.toString());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CommentThread> call, Throwable t) {
+                Log.d(TAG, "onFailure: error in response");
+                Log.d(TAG, "onFailure: " + t);
+                commentThreadMutableLiveData.postValue(null);
+            }
+        });
+    }
 }

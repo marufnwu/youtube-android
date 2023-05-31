@@ -16,7 +16,6 @@ import com.logicline.tech.stube.constants.Constants;
 import com.logicline.tech.stube.databinding.ActivityChannelBinding;
 import com.logicline.tech.stube.models.ChannelDetails;
 import com.logicline.tech.stube.models.ChannelVideo;
-import com.logicline.tech.stube.models.PlayerData;
 import com.logicline.tech.stube.ui.activities.playerActivity.PlayerActivity;
 import com.logicline.tech.stube.ui.adapters.ChannelVideoAdapter;
 
@@ -57,10 +56,8 @@ public class ChannelActivity extends AppCompatActivity {
         adapter.addItemClickListener(new ChannelVideoAdapter.ItemClickListener() {
             @Override
             public void onclick(ChannelVideo.Item item) {
-                PlayerData playerData = new PlayerData(item.snippet.title,
-                        item.snippet.description, item.id.videoId);
 
-                Intent intent = PlayerActivity.getPlayerActivityIntent(getApplicationContext(), playerData);
+                Intent intent = PlayerActivity.getPlayerActivityIntent(getApplicationContext(), item.id.videoId);
                 startActivity(intent);
             }
         });

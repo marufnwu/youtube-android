@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,9 +21,9 @@ import com.facebook.shimmer.Shimmer;
 import com.logicline.tech.stube.R;
 import com.logicline.tech.stube.databinding.ActivityMainBinding;
 import com.logicline.tech.stube.models.HomeVideo;
-import com.logicline.tech.stube.models.PlayerData;
 import com.logicline.tech.stube.ui.activities.channelActivity.ChannelActivity;
 import com.logicline.tech.stube.ui.activities.playerActivity.PlayerActivity;
+import com.logicline.tech.stube.ui.activities.playerActivity.TestActivity;
 import com.logicline.tech.stube.ui.adapters.VideoItemAdapter;
 import com.logicline.tech.stube.ui.fragments.SearchFragment;
 import com.logicline.tech.stube.utils.ConnectionUtils;
@@ -114,10 +116,8 @@ public class MainActivity extends AppCompatActivity {
         adapter.setItemClickListener(new VideoItemAdapter.ItemClickListener() {
             @Override
             public void onVideoClick(HomeVideo.Item item) {
-                PlayerData playerData = new PlayerData(item.snippet.title,
-                        item.snippet.description, item.id);
                 Intent playerIntent = PlayerActivity
-                        .getPlayerActivityIntent(MainActivity.this, playerData);
+                        .getPlayerActivityIntent(MainActivity.this, item.id);
                 startActivity(playerIntent);
             }
 
@@ -146,6 +146,24 @@ public class MainActivity extends AppCompatActivity {
 
         //Handle search Query
         handleSearch();
+
+
+        // Test button
+        Button testButton = new Button(this);
+        testButton.setText("test activity");
+        testButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                //throw new RuntimeException("Test Crash"); // Force a crash
+                //sentNotificationToAdmin(activity, "Test notification", "https://sikderithub.com/");
+                Intent intent = new Intent(getApplicationContext(), TestActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        addContentView(testButton, new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+
 
     }
 

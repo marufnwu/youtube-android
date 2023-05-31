@@ -2,9 +2,12 @@ package com.logicline.tech.stube.ui.activities.playerActivity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
@@ -13,17 +16,20 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.google.gson.Gson;
 import com.logicline.tech.stube.constants.Constants;
 import com.logicline.tech.stube.databinding.ActivityPlayerBinding;
-import com.logicline.tech.stube.models.PlayerData;
+import com.logicline.tech.stube.models.CommentThread;
 import com.logicline.tech.stube.models.RelatedVideo;
+import com.logicline.tech.stube.models.VideoDetails;
 import com.logicline.tech.stube.ui.activities.channelActivity.ChannelActivity;
 import com.logicline.tech.stube.ui.adapters.RelatedVideoAdapter;
+import com.logicline.tech.stube.ui.dialog.CommentBottomSheet;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.FullscreenListener;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.options.IFramePlayerOptions;
+
+import java.util.List;
 
 import kotlin.Unit;
 import kotlin.jvm.functions.Function0;
@@ -47,19 +53,18 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
             }
         }
     };
-    private PlayerData intentData;
+    private CommentBottomSheet bottomSheetDialogFragment;
+    private String videoId;
 
     /**
      * sent player activity intent for client functions
      *
-     * @param context    from which activity
-     * @param playerData data for player activity
+     * @param context from which activity
      * @return player intent
      */
-    public static Intent getPlayerActivityIntent(Context context, PlayerData playerData) {
+    public static Intent getPlayerActivityIntent(Context context, String videoId) {
         Intent playerActivityIntent = new Intent(context, PlayerActivity.class);
-        String data = new Gson().toJson(playerData);
-        playerActivityIntent.putExtra(Constants.PLAYER_ACTIVITY_INTENT_ITEM_KEY, data);
+        playerActivityIntent.putExtra(Constants.PLAYER_ACTIVITY_INTENT_ITEM_KEY, videoId);
         return playerActivityIntent;
     }
 
@@ -71,19 +76,13 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         binding = ActivityPlayerBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        //getting
-        Gson gson = new Gson();
-        String gsonString = getIntent().getStringExtra(Constants.PLAYER_ACTIVITY_INTENT_ITEM_KEY);
-        intentData = gson.fromJson(gsonString, PlayerData.class);
+        videoId = getIntent().getStringExtra(Constants.PLAYER_ACTIVITY_INTENT_ITEM_KEY);
 
         initViews();
     }
 
     private void initViews() {
-        setupYoutubePlayer(intentData.getVideoId());
-
-        binding.tvPlayerVideoTitle.setText(intentData.getTitle());
-        binding.tvPlayerVideoDescription.setText(intentData.getDescription());
+        setupYoutubePlayer(videoId);
 
         //Related video list init
         adapter = new RelatedVideoAdapter(getApplicationContext());
@@ -94,6 +93,8 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
                 adapter.clearData();
                 mYouTubePlayer.loadVideo(item.id.videoId, 0);
                 viewModel.loadRelatedVideos(item.id.videoId);
+                videoId = item.id.videoId;
+                viewModel.loadVideoDetails(videoId);
             }
 
             @Override
@@ -110,7 +111,8 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         //init viewModel
         viewModel = new ViewModelProvider(this).get(PlayerViewModel.class);
 
-        viewModel.loadRelatedVideos(intentData.getVideoId());
+        viewModel.loadRelatedVideos(videoId);
+        viewModel.loadVideoDetails(videoId);
 
         /* notify nested scrollView at the end position
         binding.nsvPlayerScrollView.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
@@ -128,6 +130,10 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         });*/
 
         binding.tvPlayerVideoTitle.setOnClickListener(this);
+        binding.tvPlayerComment.setOnClickListener(this);
+        binding.ivPlayerComment.setOnClickListener(this);
+        binding.tvPlayerShare.setOnClickListener(this);
+        binding.ivPlayerShare.setOnClickListener(this);
 
         initViewModelObserver();
     }
@@ -142,6 +148,33 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
                 adapter.setData(relatedVideo.items);
 
                 binding.pbPlayerRecentVideos.setVisibility(View.GONE);
+            }
+        });
+
+        viewModel.getVideoDetails().observe(this, new Observer<VideoDetails>() {
+            @Override
+            public void onChanged(VideoDetails videoDetails) {
+                if (videoDetails == null || videoDetails.items == null)
+                    return;
+
+                VideoDetails.Item item = videoDetails.items.get(0);
+                binding.tvPlayerLike.setText(item.statistics.likeCount);
+                binding.tvPlayerComment.setText(item.statistics.commentCount);
+                binding.tvPlayerVideoView.setText(item.statistics.viewCount + " views");
+
+                binding.tvPlayerVideoTitle.setText(item.snippet.title);
+                binding.tvPlayerVideoDescription.setText(item.snippet.description);
+                binding.tvPlayerChannelName.setText(item.snippet.channelTitle);
+            }
+        });
+
+        viewModel.getCommentThread().observe(this, new Observer<CommentThread>() {
+            @Override
+            public void onChanged(CommentThread commentThread) {
+                if (commentThread != null) {
+                    Log.d(TAG, "onChanged: " + commentThread.items.size());
+                    bottomSheetDialogFragment.setData(commentThread.items);
+                }
             }
         });
     }
@@ -225,6 +258,26 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
                 binding.tvPlayerVideoTitle.setMaxLines(10);
                 if (binding.pbPlayerRecentVideos.isShown())
                     binding.pbPlayerRecentVideos.setVisibility(View.GONE);
+            }
+        } else if (binding.tvPlayerComment.equals(v) || binding.ivPlayerComment.equals(v)) {
+            Toast.makeText(getApplicationContext(), "comments", Toast.LENGTH_SHORT).show();
+
+            bottomSheetDialogFragment = new CommentBottomSheet();
+            bottomSheetDialogFragment.show(getSupportFragmentManager(), "bottomSheet");
+            viewModel.loadCommentThread(videoId);
+
+        } else if (binding.tvPlayerShare.equals(v) || binding.ivPlayerShare.equals(v)) {
+            Toast.makeText(getApplicationContext(), "share", Toast.LENGTH_SHORT).show();
+
+            String link = "https://www.youtube.com/watch?v=" + videoId;
+            Intent intent = new Intent(Intent.ACTION_SEND);
+            intent.setType("text/plain");
+            intent.putExtra(Intent.EXTRA_TEXT, link);
+
+            PackageManager packageManager = getPackageManager();
+            List<ResolveInfo> activities = packageManager.queryIntentActivities(intent, 0);
+            if (!activities.isEmpty()) {
+                startActivity(Intent.createChooser(intent, "Share Link"));
             }
         }
     }

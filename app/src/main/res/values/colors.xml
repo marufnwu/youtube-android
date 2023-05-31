@@ -7,4 +7,5 @@
     <color name="placeholder_color">#B9BDC0</color>
     <color name="blue_500">#3F51B5</color>
     <color name="text_color">@color/black</color>
+    <color name="card_background">#DFDFDF</color>
 </resources>

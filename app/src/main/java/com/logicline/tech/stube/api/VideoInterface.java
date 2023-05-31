@@ -2,9 +2,12 @@ package com.logicline.tech.stube.api;
 
 import com.logicline.tech.stube.models.ChannelDetails;
 import com.logicline.tech.stube.models.ChannelVideo;
+import com.logicline.tech.stube.models.CommentThread;
 import com.logicline.tech.stube.models.HomeVideo;
+import com.logicline.tech.stube.models.PlayListVideo;
 import com.logicline.tech.stube.models.RelatedVideo;
 import com.logicline.tech.stube.models.SearchItem;
+import com.logicline.tech.stube.models.VideoDetails;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
@@ -17,7 +20,6 @@ public interface VideoInterface {
                                  @Query("chart") String chart,
                                  @Query("regionCode") String regionCode,
                                  @Query("key") String key);
-
 
     @GET("videos")
     Call<HomeVideo> getHomeVideoNextPage(@Query("part") String part,
@@ -70,4 +72,24 @@ public interface VideoInterface {
                                            @Query("part") String part1,
                                            @Query("id") String id,
                                            @Query("key") String key);
+
+    @GET("videos")
+    Call<VideoDetails>getVideoDetails(@Query("part") String part,
+                                      @Query("part") String part1,
+                                      @Query("id") String id,
+                                      @Query("key") String key);
+
+    @GET("commentThreads")
+    Call<CommentThread> getCommentThread(@Query("part") String part,
+                                         @Query("videoId") String videoId,
+                                         @Query("key") String key);
+
+    @GET("playlistItems")
+    Call<PlayListVideo> getPlayListVideo(@Query("part") String part,
+                                         @Query("playlistId") String playListId,
+                                         @Query("key") String key);
+    Call<PlayListVideo> getPlayListVideoNextPage(@Query("part") String part,
+                                                 @Query("playlistId") String playListId,
+                                                 @Query("key") String key,
+                                                 @Query("pageToken") String pageToken);
 }
