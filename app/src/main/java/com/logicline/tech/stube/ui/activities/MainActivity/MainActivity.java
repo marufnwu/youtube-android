@@ -148,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
         handleSearch();
 
 
-        // Test button
+        /* Test button
         Button testButton = new Button(this);
         testButton.setText("test activity");
         testButton.setOnClickListener(new View.OnClickListener() {
@@ -163,6 +163,7 @@ public class MainActivity extends AppCompatActivity {
         addContentView(testButton, new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
+        */
 
 
     }

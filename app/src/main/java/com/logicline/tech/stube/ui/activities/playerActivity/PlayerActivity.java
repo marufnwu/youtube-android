@@ -156,7 +156,7 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
             public void onChanged(VideoDetails videoDetails) {
                 if (videoDetails == null || videoDetails.items == null)
                     return;
-
+                if (videoDetails.items.size() > 0){
                 VideoDetails.Item item = videoDetails.items.get(0);
                 binding.tvPlayerLike.setText(item.statistics.likeCount);
                 binding.tvPlayerComment.setText(item.statistics.commentCount);
@@ -165,6 +165,7 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
                 binding.tvPlayerVideoTitle.setText(item.snippet.title);
                 binding.tvPlayerVideoDescription.setText(item.snippet.description);
                 binding.tvPlayerChannelName.setText(item.snippet.channelTitle);
+                }
             }
         });
 

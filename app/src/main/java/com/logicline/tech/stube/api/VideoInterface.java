@@ -44,6 +44,11 @@ public interface VideoInterface {
     @GET("search")
     Call<SearchItem> getSearchResult(@Query("part") String part,
                                      @Query("q") String query,
+                                     @Query("key") String key,
+                                     @Query("type") String type);
+    @GET("search")
+    Call<SearchItem> getSearchResult(@Query("part") String part,
+                                     @Query("q") String query,
                                      @Query("key") String key);
 
     @GET("search")

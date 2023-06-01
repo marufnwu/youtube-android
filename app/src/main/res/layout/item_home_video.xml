@@ -9,8 +9,8 @@
     <ImageView
         android:id="@+id/iv_video_item_thumbnail"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/_200sdp"
-        android:scaleType="center"
+        android:layout_height="@dimen/_160sdp"
+        android:scaleType="centerCrop"
         android:src="@drawable/image_placeholder"
         app:layout_constraintTop_toTopOf="parent"
         tools:src="@drawable/image_placeholder" />
@@ -21,7 +21,6 @@
         android:layout_height="@dimen/_40sdp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:elevation="12dp"
         app:cardCornerRadius="40dp"
         app:layout_constraintStart_toStartOf="@+id/iv_video_item_thumbnail"
         app:layout_constraintTop_toBottomOf="@+id/iv_video_item_thumbnail">

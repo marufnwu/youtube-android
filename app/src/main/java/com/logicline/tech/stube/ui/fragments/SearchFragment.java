@@ -18,9 +18,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.logicline.tech.stube.R;
+import com.logicline.tech.stube.models.PlaylistData;
 import com.logicline.tech.stube.models.SearchItem;
 import com.logicline.tech.stube.ui.activities.channelActivity.ChannelActivity;
 import com.logicline.tech.stube.ui.activities.playerActivity.PlayerActivity;
+import com.logicline.tech.stube.ui.activities.playlistActivity.PlaylistActivity;
 import com.logicline.tech.stube.ui.adapters.SearchItemAdapter;
 
 public class SearchFragment extends Fragment {
@@ -87,6 +89,11 @@ public class SearchFragment extends Fragment {
             public void onClickPlaylist(SearchItem.Item item) {
 
                 Toast.makeText(getActivity(), "playlist clicked", Toast.LENGTH_SHORT).show();
+                PlaylistData data = new PlaylistData(item.id.playlistId, item.snippet.title,
+                       item.snippet.channelTitle, item.snippet.description, item.snippet.thumbnails.high.url);
+
+                Intent intent = PlaylistActivity.getPlayListIntent(getActivity(), data);
+                startActivity(intent);
             }
 
             @Override

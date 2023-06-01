@@ -71,14 +71,18 @@ public class SearchItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             ((PlaylistViewHolder) holder).playlistBinding.tvPlaylistChannelName.setText(item.snippet.channelTitle);
             Glide.with(context)
                     .load(item.snippet.thumbnails.high.url)
+                    .placeholder(R.drawable.image_placeholder)
                     .into(((PlaylistViewHolder) holder).playlistBinding.ivPlaylistThumbnail);
+
             ((PlaylistViewHolder) holder).playlistBinding.ivPlaylistChannelAvatar
                     .setImageResource(R.mipmap.ic_launcher_round);
+
         } else if (getItemViewType(position) == viewType.CHANNEL.ordinal()) {
             ((ChannelViewHolder) holder).channelBinding.tvChannelTitle.setText(item.snippet.title);
             ((ChannelViewHolder) holder).channelBinding.tvChannelDescription.setText(item.snippet.description);
             Glide.with(context)
                     .load(item.snippet.thumbnails.high.url)
+                    .placeholder(R.drawable.image_placeholder)
                     .into(((ChannelViewHolder) holder).channelBinding.ivChannelThumbnail);
         } else {
             ((VideoViewHolder) holder).videoBinding.tvVideoTitle.setText(item.snippet.title);
@@ -86,6 +90,7 @@ public class SearchItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
             Glide.with(context)
                     .load(item.snippet.thumbnails.high.url)
+                    .placeholder(R.drawable.image_placeholder)
                     .into(((VideoViewHolder) holder).videoBinding.ivVideoItemThumbnail);
             //holder.itemBinding.ivChannelAvatar.setImageDrawable(context.getDrawable(R.drawable.image_placeholder));
             ((VideoViewHolder) holder).videoBinding.ivChannelAvatar

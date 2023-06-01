@@ -9,7 +9,7 @@
     <ImageView
         android:id="@+id/iv_playlist_thumbnail"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/_200sdp"
+        android:layout_height="@dimen/_170sdp"
         android:scaleType="center"
         android:src="@drawable/image_placeholder"
         app:layout_constraintTop_toTopOf="parent"
@@ -20,8 +20,10 @@
         android:layout_height="wrap_content"
         android:alpha="0.5"
         android:background="@color/black"
+        android:padding="@dimen/_4sdp"
         android:text="Playlist"
         android:textColor="@color/white"
+        android:textSize="@dimen/_13sdp"
         app:layout_constraintBottom_toBottomOf="@+id/iv_playlist_thumbnail" />
 
     <androidx.cardview.widget.CardView

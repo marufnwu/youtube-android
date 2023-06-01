@@ -46,6 +46,7 @@ public class ChannelVideoAdapter extends RecyclerView.Adapter<ChannelVideoAdapte
         holder.binding.tvChannelVideoPublishDate.setText(publishDate);
         Glide.with(context)
                 .load(thumbNail)
+                .placeholder(R.drawable.image_placeholder)
                 .into(holder.binding.ivChannelVideoThumbnail);
     }
 

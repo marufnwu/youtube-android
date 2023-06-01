@@ -55,6 +55,8 @@
                 android:layout_marginTop="@dimen/_8sdp"
                 android:textSize="@dimen/_11sdp"
                 android:visibility="gone"
+                android:layout_marginStart="@dimen/_8sdp"
+                android:layout_marginEnd="@dimen/_8sdp"
                 app:layout_constraintEnd_toEndOf="@+id/tv_player_video_title"
                 app:layout_constraintStart_toStartOf="@+id/tv_player_video_title"
                 app:layout_constraintTop_toBottomOf="@+id/tv_player_video_view"
@@ -64,9 +66,9 @@
                 android:id="@+id/cv_react"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/_8sdp"
+                android:layout_marginStart="@dimen/_16sdp"
                 android:layout_marginTop="@dimen/_8sdp"
-                android:layout_marginEnd="@dimen/_8sdp"
+                android:layout_marginEnd="@dimen/_16sdp"
                 app:cardBackgroundColor="#DFDFDF"
                 app:cardCornerRadius="@dimen/_10sdp"
                 app:layout_constraintTop_toBottomOf="@+id/tv_player_video_description">
@@ -82,8 +84,8 @@
 
                     <ImageView
                         android:id="@+id/iv_player_like"
-                        android:layout_width="@dimen/_24sdp"
-                        android:layout_height="@dimen/_24sdp"
+                        android:layout_width="@dimen/_18sdp"
+                        android:layout_height="@dimen/_18sdp"
                         android:layout_marginStart="@dimen/_24sdp"
                         android:src="@drawable/ic_like"
                         app:layout_constraintStart_toStartOf="parent"
@@ -103,8 +105,8 @@
 
                     <ImageView
                         android:id="@+id/iv_player_share"
-                        android:layout_width="@dimen/_24sdp"
-                        android:layout_height="@dimen/_24sdp"
+                        android:layout_width="@dimen/_18sdp"
+                        android:layout_height="@dimen/_18sdp"
                         android:layout_marginEnd="@dimen/_24sdp"
                         android:src="@drawable/ic_share"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -124,8 +126,8 @@
 
                     <ImageView
                         android:id="@+id/iv_player_comment"
-                        android:layout_width="@dimen/_24sdp"
-                        android:layout_height="@dimen/_24sdp"
+                        android:layout_width="@dimen/_18sdp"
+                        android:layout_height="@dimen/_18sdp"
                         android:src="@drawable/ic_comment"
                         app:layout_constraintEnd_toStartOf="@+id/iv_player_share"
                         app:layout_constraintStart_toEndOf="@+id/iv_player_like"
@@ -208,7 +210,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/youtube_player_view" />
-
 
     <FrameLayout
         android:id="@+id/full_screen_view_container"

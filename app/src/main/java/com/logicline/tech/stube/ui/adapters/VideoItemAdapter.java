@@ -49,6 +49,7 @@ public class VideoItemAdapter extends RecyclerView.Adapter<VideoItemAdapter.vide
 
         Glide.with(context)
                 .load(thumbnailUrl)
+                .placeholder(R.drawable.image_placeholder)
                 .into(holder.itemBinding.ivVideoItemThumbnail);
         //holder.itemBinding.ivChannelAvatar.setImageDrawable(context.getDrawable(R.drawable.image_placeholder));
         holder.itemBinding.ivChannelAvatar.setImageResource(R.mipmap.ic_launcher_round);
