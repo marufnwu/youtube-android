@@ -89,6 +89,12 @@ public interface VideoInterface {
                                          @Query("videoId") String videoId,
                                          @Query("key") String key);
 
+    @GET("commentThreads")
+    Call<CommentThread> getCommentThreadNextPage(@Query("part") String part,
+                                         @Query("videoId") String videoId,
+                                         @Query("key") String key,
+                                         @Query("pageToken") String pageToken);
+
     @GET("playlistItems")
     Call<PlayListVideo> getPlayListVideo(@Query("part") String part,
                                          @Query("playlistId") String playListId,

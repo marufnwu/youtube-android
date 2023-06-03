@@ -1,12 +1,16 @@
 package com.logicline.tech.stube.ui.adapters;
 
 import android.content.Context;
+import android.text.Html;
+import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.core.text.HtmlCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -43,6 +47,11 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.itemVi
             String commentChannelName = topLevelComment.snippet.authorDisplayName;
             String commentChannelImage = topLevelComment.snippet.authorProfileImageUrl;
             String comment = topLevelComment.snippet.textDisplay;
+            /*String lineSep = System.getProperty("line.separator");
+            comment = comment.replaceAll("<br>", lineSep);*/
+
+            Spanned commentSpanned = HtmlCompat.fromHtml(comment, HtmlCompat.FROM_HTML_MODE_LEGACY);
+
             int likeCount = topLevelComment.snippet.likeCount;
 
             Log.d(TAG, "onBindViewHolder: channel name " + commentChannelName);
@@ -52,7 +61,8 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.itemVi
             Log.d(TAG, "onBindViewHolder: size " + comments.size());
 
             holder.commentBinding.tvCommentChannelName.setText(commentChannelName);
-            holder.commentBinding.tvComment.setText(comment);
+            holder.commentBinding.tvComment.setText(commentSpanned);
+            holder.commentBinding.tvComment.setMovementMethod(LinkMovementMethod.getInstance());
             holder.commentBinding.tvCommentLikes.setText(likeCount + "");
 
             Glide.with(context)
@@ -81,7 +91,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.itemVi
         this.clickListener = clickListener;
     }
 
-    interface ItemClickListener{
+    public interface ItemClickListener{
         void onChannelClicked(CommentThread.Item item);
     }
 

@@ -168,16 +168,6 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
                 }
             }
         });
-
-        viewModel.getCommentThread().observe(this, new Observer<CommentThread>() {
-            @Override
-            public void onChanged(CommentThread commentThread) {
-                if (commentThread != null) {
-                    Log.d(TAG, "onChanged: " + commentThread.items.size());
-                    bottomSheetDialogFragment.setData(commentThread.items);
-                }
-            }
-        });
     }
 
     /* Get next page of related video from make api call
@@ -264,8 +254,10 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
             Toast.makeText(getApplicationContext(), "comments", Toast.LENGTH_SHORT).show();
 
             bottomSheetDialogFragment = new CommentBottomSheet();
+            Bundle bundle = new Bundle();
+            bundle.putString(Constants.BOTTOM_SHEET_DATA_KEY, videoId);
+            bottomSheetDialogFragment.setArguments(bundle);
             bottomSheetDialogFragment.show(getSupportFragmentManager(), "bottomSheet");
-            viewModel.loadCommentThread(videoId);
 
         } else if (binding.tvPlayerShare.equals(v) || binding.ivPlayerShare.equals(v)) {
             Toast.makeText(getApplicationContext(), "share", Toast.LENGTH_SHORT).show();

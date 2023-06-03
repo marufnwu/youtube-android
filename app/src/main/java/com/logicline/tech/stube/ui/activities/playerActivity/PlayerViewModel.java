@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 
+import com.google.gson.Gson;
 import com.logicline.tech.stube.api.ApiClient;
 import com.logicline.tech.stube.api.VideoInterface;
 import com.logicline.tech.stube.constants.ApiConstants;
@@ -24,8 +25,10 @@ public class PlayerViewModel extends AndroidViewModel {
     private final MutableLiveData<RelatedVideo> apiResponse;
     private final MutableLiveData<VideoDetails> videoDetails;
     private final MutableLiveData<CommentThread> commentThreadMutableLiveData;
+    private final MutableLiveData<CommentThread> commentThreadNextPageLiveData;
     private final VideoInterface videoInterface;
     private String nextPageToken;
+    private String commentThreadNextPageToken;
 
     public PlayerViewModel(@NonNull Application application) {
         super(application);
@@ -33,6 +36,7 @@ public class PlayerViewModel extends AndroidViewModel {
         apiResponse = new MutableLiveData<>();
         videoDetails = new MutableLiveData<>();
         commentThreadMutableLiveData = new MutableLiveData<>();
+        commentThreadNextPageLiveData = new MutableLiveData<>();
 
         videoInterface = ApiClient.getInstance(ApiConstants.API_BASE_URL)
                 .create(VideoInterface.class);
@@ -47,6 +51,9 @@ public class PlayerViewModel extends AndroidViewModel {
     }
     public MutableLiveData<CommentThread> getCommentThread(){
         return commentThreadMutableLiveData;
+    }
+    public MutableLiveData<CommentThread> getCommentThreadNextPage(){
+        return commentThreadNextPageLiveData;
     }
 
     public void loadRelatedVideos(String relatedVideoId) {
@@ -146,6 +153,34 @@ public class PlayerViewModel extends AndroidViewModel {
                 if (response.isSuccessful()) {
                     if (response.body() != null) {
                         commentThreadMutableLiveData.postValue(response.body());
+                        commentThreadNextPageToken = response.body().nextPageToken;
+                    } else
+                        Utils.showLongLogMsg("response video commentThread ", response.toString());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CommentThread> call, Throwable t) {
+                Log.d(TAG, "onFailure: error in response");
+                Log.d(TAG, "onFailure: " + t);
+                commentThreadMutableLiveData.postValue(null);
+            }
+        });
+    }
+
+    public void loadCommentThreadNextPage(String videoId){
+        Call<CommentThread> commentThreadCall =
+                videoInterface.getCommentThreadNextPage(ApiConstants.API_PART_SNIPPET,
+                        videoId, ApiConstants.API_KEY, commentThreadNextPageToken);
+        commentThreadCall.enqueue(new Callback<CommentThread>() {
+            @Override
+            public void onResponse(Call<CommentThread> call, Response<CommentThread> response) {
+                if (response.isSuccessful()) {
+                    if (response.body() != null) {
+                        Log.d(TAG, "onResponse: " + new Gson().toJson(response.body()));
+                        commentThreadNextPageLiveData.postValue(response.body());
+                        commentThreadNextPageToken = response.body().nextPageToken;
+                        Log.d(TAG, "onResponse: next page token " + commentThreadNextPageToken);
                     } else
                         Utils.showLongLogMsg("response video commentThread ", response.toString());
                 }
