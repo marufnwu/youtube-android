@@ -67,6 +67,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.itemVi
 
             Glide.with(context)
                     .load(commentChannelImage)
+                    .placeholder(R.drawable.ic_profile)
                     .into(holder.commentBinding.ivCommentChannelAvatar);
         }
 
