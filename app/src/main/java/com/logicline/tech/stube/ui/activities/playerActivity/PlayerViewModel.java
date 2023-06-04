@@ -27,6 +27,8 @@ public class PlayerViewModel extends AndroidViewModel {
     private final MutableLiveData<CommentThread> commentThreadMutableLiveData;
     private final MutableLiveData<CommentThread> commentThreadNextPageLiveData;
     private final VideoInterface videoInterface;
+    public MutableLiveData<Boolean> isMiniPlayerVisible = new MutableLiveData<>();
+    public MutableLiveData<Boolean> isFullscreen = new MutableLiveData<>();
     private String nextPageToken;
     private String commentThreadNextPageToken;
 
@@ -38,6 +40,9 @@ public class PlayerViewModel extends AndroidViewModel {
         commentThreadMutableLiveData = new MutableLiveData<>();
         commentThreadNextPageLiveData = new MutableLiveData<>();
 
+        isMiniPlayerVisible.setValue(false);
+        isFullscreen.setValue(false);
+
         videoInterface = ApiClient.getInstance(ApiConstants.API_BASE_URL)
                 .create(VideoInterface.class);
 
@@ -46,42 +51,13 @@ public class PlayerViewModel extends AndroidViewModel {
     public MutableLiveData<RelatedVideo> getRelatedVideo() {
         return apiResponse;
     }
-    public MutableLiveData<VideoDetails> getVideoDetails(){
+
+    public MutableLiveData<VideoDetails> getVideoDetails() {
         return videoDetails;
     }
-    public MutableLiveData<CommentThread> getCommentThread(){
+
+    public MutableLiveData<CommentThread> getCommentThread() {
         return commentThreadMutableLiveData;
-    }
-    public MutableLiveData<CommentThread> getCommentThreadNextPage(){
-        return commentThreadNextPageLiveData;
-    }
-
-    public void loadRelatedVideos(String relatedVideoId) {
-        Log.d(TAG, "getRelatedVideos: is called");
-        Call<RelatedVideo> video = videoInterface.getRelatedVideo(
-                ApiConstants.API_PART_SNIPPET, ApiConstants.API_TYPE_VIDEO,
-                relatedVideoId, ApiConstants.API_KEY);
-
-        video.enqueue(new Callback<RelatedVideo>() {
-            @Override
-            public void onResponse(Call<RelatedVideo> call, Response<RelatedVideo> response) {
-                if (response.isSuccessful()) {
-                    if (response.body() != null) {
-                        apiResponse.postValue(response.body());
-                        nextPageToken = response.body().nextPageToken;
-                    } else
-                        Utils.showLongLogMsg("response related video", response.toString());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<RelatedVideo> call, Throwable t) {
-
-                Log.d(TAG, "onFailure: error in response");
-                Log.d(TAG, "onFailure: " + t);
-                apiResponse.postValue(null);
-            }
-        });
     }
 
     /*
@@ -119,7 +95,39 @@ public class PlayerViewModel extends AndroidViewModel {
         return apiResponseNextPage;
     }*/
 
-    public void loadVideoDetails(String videoId){
+    public MutableLiveData<CommentThread> getCommentThreadNextPage() {
+        return commentThreadNextPageLiveData;
+    }
+
+    public void loadRelatedVideos(String relatedVideoId) {
+        Log.d(TAG, "getRelatedVideos: is called");
+        Call<RelatedVideo> video = videoInterface.getRelatedVideo(
+                ApiConstants.API_PART_SNIPPET, ApiConstants.API_TYPE_VIDEO,
+                relatedVideoId, ApiConstants.API_KEY);
+
+        video.enqueue(new Callback<RelatedVideo>() {
+            @Override
+            public void onResponse(Call<RelatedVideo> call, Response<RelatedVideo> response) {
+                if (response.isSuccessful()) {
+                    if (response.body() != null) {
+                        apiResponse.postValue(response.body());
+                        nextPageToken = response.body().nextPageToken;
+                    } else
+                        Utils.showLongLogMsg("response related video", response.toString());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<RelatedVideo> call, Throwable t) {
+
+                Log.d(TAG, "onFailure: error in response");
+                Log.d(TAG, "onFailure: " + t);
+                apiResponse.postValue(null);
+            }
+        });
+    }
+
+    public void loadVideoDetails(String videoId) {
         Call<VideoDetails> videoDetailsCall = videoInterface.getVideoDetails(ApiConstants.API_PART_STATISTICS,
                 ApiConstants.API_PART_SNIPPET,
                 videoId, ApiConstants.API_KEY);
@@ -134,6 +142,7 @@ public class PlayerViewModel extends AndroidViewModel {
                         Utils.showLongLogMsg("response video details ", response.toString());
                 }
             }
+
             @Override
             public void onFailure(Call<VideoDetails> call, Throwable t) {
                 Log.d(TAG, "onFailure: error in response");
@@ -143,10 +152,10 @@ public class PlayerViewModel extends AndroidViewModel {
         });
     }
 
-    public void loadCommentThread(String videoId){
+    public void loadCommentThread(String videoId) {
         Call<CommentThread> commentThreadCall =
                 videoInterface.getCommentThread(ApiConstants.API_PART_SNIPPET,
-                videoId, ApiConstants.API_KEY);
+                        videoId, ApiConstants.API_KEY);
         commentThreadCall.enqueue(new Callback<CommentThread>() {
             @Override
             public void onResponse(Call<CommentThread> call, Response<CommentThread> response) {
@@ -168,7 +177,7 @@ public class PlayerViewModel extends AndroidViewModel {
         });
     }
 
-    public void loadCommentThreadNextPage(String videoId){
+    public void loadCommentThreadNextPage(String videoId) {
         Call<CommentThread> commentThreadCall =
                 videoInterface.getCommentThreadNextPage(ApiConstants.API_PART_SNIPPET,
                         videoId, ApiConstants.API_KEY, commentThreadNextPageToken);
@@ -193,5 +202,13 @@ public class PlayerViewModel extends AndroidViewModel {
                 commentThreadMutableLiveData.postValue(null);
             }
         });
+    }
+
+    public MutableLiveData<Boolean> isMiniPlayerVisible() {
+        return isMiniPlayerVisible;
+    }
+
+    public MutableLiveData<Boolean> isFullscreen() {
+        return isFullscreen;
     }
 }

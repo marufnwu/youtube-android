@@ -6,8 +6,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,7 +21,6 @@ import com.logicline.tech.stube.databinding.ActivityMainBinding;
 import com.logicline.tech.stube.models.HomeVideo;
 import com.logicline.tech.stube.ui.activities.channelActivity.ChannelActivity;
 import com.logicline.tech.stube.ui.activities.playerActivity.PlayerActivity;
-import com.logicline.tech.stube.ui.activities.playerActivity.TestActivity;
 import com.logicline.tech.stube.ui.adapters.VideoItemAdapter;
 import com.logicline.tech.stube.ui.fragments.SearchFragment;
 import com.logicline.tech.stube.utils.ConnectionUtils;
