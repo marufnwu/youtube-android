@@ -90,7 +90,7 @@ public class SearchFragment extends Fragment {
 
                 Toast.makeText(getActivity(), "playlist clicked", Toast.LENGTH_SHORT).show();
                 PlaylistData data = new PlaylistData(item.id.playlistId, item.snippet.title,
-                       item.snippet.channelTitle, item.snippet.description, item.snippet.thumbnails.high.url);
+                        item.snippet.channelTitle, item.snippet.description, item.snippet.thumbnails.high.url);
 
                 Intent intent = PlaylistActivity.getPlayListIntent(getActivity(), data);
                 startActivity(intent);
@@ -102,7 +102,7 @@ public class SearchFragment extends Fragment {
                 Log.d(TAG, "onClickChannel: is called");
                 Toast.makeText(getActivity(), "Channel clicked", Toast.LENGTH_SHORT).show();
 
-                Intent intent = ChannelActivity.getChannelActivityIntent(getActivity(), item.id.channelId);
+                Intent intent = ChannelActivity.getChannelActivityIntent(getActivity(), item.snippet.channelId);
                 startActivity(intent);
             }
         });
