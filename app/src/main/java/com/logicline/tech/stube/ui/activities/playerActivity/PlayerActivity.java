@@ -134,6 +134,8 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         binding.ivPlayerComment.setOnClickListener(this);
         binding.tvPlayerShare.setOnClickListener(this);
         binding.ivPlayerShare.setOnClickListener(this);
+        binding.ivPlayerChannelAvatar.setOnClickListener(this);
+        binding.tvPlayerChannelName.setOnClickListener(this);
 
         initViewModelObserver();
     }
@@ -272,6 +274,9 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
             if (!activities.isEmpty()) {
                 startActivity(Intent.createChooser(intent, "Share Link"));
             }
+        } else if (binding.ivPlayerChannelAvatar.equals(v) || binding.tvPlayerChannelName.equals(v)) {
+            //ChannelActivity.getChannelActivityIntent(getApplicationContext(), )
+            Toast.makeText(this, "channel clicked", Toast.LENGTH_SHORT).show();
         }
     }
 }

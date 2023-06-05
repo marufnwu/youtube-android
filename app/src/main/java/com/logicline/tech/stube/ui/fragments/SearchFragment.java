@@ -79,7 +79,6 @@ public class SearchFragment extends Fragment {
                 intent.putExtra(Constants.PLAYER_ACTIVITY_INTENT_ITEM_KEY, object);
                 startActivity(intent);*/
 
-                Toast.makeText(getActivity(), "video clicked", Toast.LENGTH_SHORT).show();
                 Intent videoIntent = PlayerActivity
                         .getPlayerActivityIntent(getActivity(), item.id.videoId);
                 startActivity(videoIntent);
@@ -88,7 +87,6 @@ public class SearchFragment extends Fragment {
             @Override
             public void onClickPlaylist(SearchItem.Item item) {
 
-                Toast.makeText(getActivity(), "playlist clicked", Toast.LENGTH_SHORT).show();
                 PlaylistData data = new PlaylistData(item.id.playlistId, item.snippet.title,
                         item.snippet.channelTitle, item.snippet.description, item.snippet.thumbnails.high.url);
 
@@ -100,7 +98,6 @@ public class SearchFragment extends Fragment {
             public void onClickChannel(SearchItem.Item item) {
 
                 Log.d(TAG, "onClickChannel: is called");
-                Toast.makeText(getActivity(), "Channel clicked", Toast.LENGTH_SHORT).show();
 
                 Intent intent = ChannelActivity.getChannelActivityIntent(getActivity(), item.snippet.channelId);
                 startActivity(intent);
