@@ -13,6 +13,19 @@ public class PlayListVideo {
     public ArrayList<Item> items;
     public PageInfo pageInfo;
     public String nextPageToken;
+    public SearchItem.Error error;
+
+    public class Error {
+        public int code;
+        public String message;
+        public ArrayList<SearchItem.Error2> errors;
+    }
+
+    public class Error2 {
+        public String message;
+        public String domain;
+        public String reason;
+    }
 
     public class Default {
         public String url;

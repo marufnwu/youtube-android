@@ -12,6 +12,19 @@ public class RelatedVideo {
     public String prevPageToken;
     public PageInfo pageInfo;
     public ArrayList<Item> items;
+    public Error error;
+
+    public class Error {
+        public int code;
+        public String message;
+        public ArrayList<Error2> errors;
+    }
+
+    public class Error2 {
+        public String message;
+        public String domain;
+        public String reason;
+    }
 
     public class Default {
         public String url;

@@ -82,7 +82,7 @@ public class PlaylistActivity extends AppCompatActivity implements View.OnClickL
         viewModel.getPlayListVideo().observe(this, new Observer<PlayListVideo>() {
             @Override
             public void onChanged(PlayListVideo playListVideo) {
-                if (playListVideo != null){
+                if (playListVideo != null && playListVideo.error == null){
                     adapter.setData(playListVideo.items);
                 }
             }

@@ -10,6 +10,19 @@ public class VideoDetails {
     public String etag;
     public ArrayList<Item> items;
     public PageInfo pageInfo;
+    public SearchItem.Error error;
+
+    public class Error {
+        public int code;
+        public String message;
+        public ArrayList<SearchItem.Error2> errors;
+    }
+
+    public class Error2 {
+        public String message;
+        public String domain;
+        public String reason;
+    }
 
     public class Default {
         public String url;

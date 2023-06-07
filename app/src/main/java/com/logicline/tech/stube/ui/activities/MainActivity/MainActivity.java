@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.facebook.shimmer.Shimmer;
+import com.google.gson.Gson;
 import com.logicline.tech.stube.R;
 import com.logicline.tech.stube.databinding.ActivityMainBinding;
 import com.logicline.tech.stube.models.HomeVideo;
@@ -172,11 +173,15 @@ public class MainActivity extends AppCompatActivity {
         viewModel.getHomeVideos().observe(this, new Observer<HomeVideo>() {
             @Override
             public void onChanged(HomeVideo homeVideo) {
-                if (homeVideo != null) {
+                Log.d(TAG, "onChanged: is called");
+                if (homeVideo != null && homeVideo.error == null) {
                     adapter.setData(homeVideo.items);
 
+                    Log.d(TAG, "onChanged: " + new Gson().toJson(homeVideo.items));
                     binding.shimmerViewContainer.stopShimmer();
                     binding.shimmerViewContainer.setVisibility(View.GONE);
+                }else {
+                    Log.d(TAG, "onChanged: homeVideo is null");
                 }
             }
         });
@@ -184,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
         viewModel.getNextPage().observe(this, new Observer<HomeVideo>() {
             @Override
             public void onChanged(HomeVideo homeVideo) {
-                if (homeVideo != null) {
+                if (homeVideo != null && homeVideo.error ==  null) {
                     adapter.addData(homeVideo.items);
                     isLoading = false;
                     Log.d(TAG, "getNextPage: loading finished");

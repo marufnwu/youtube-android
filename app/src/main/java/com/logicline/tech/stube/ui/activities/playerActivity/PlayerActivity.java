@@ -5,8 +5,12 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
@@ -24,11 +28,15 @@ import com.logicline.tech.stube.models.VideoDetails;
 import com.logicline.tech.stube.ui.activities.channelActivity.ChannelActivity;
 import com.logicline.tech.stube.ui.adapters.RelatedVideoAdapter;
 import com.logicline.tech.stube.ui.dialog.CommentBottomSheet;
+import com.logicline.tech.stube.utils.Utils;
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.FullscreenListener;
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerListener;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.options.IFramePlayerOptions;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import kotlin.Unit;
@@ -43,6 +51,7 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
     private RelatedVideoAdapter adapter;
     private PlayerViewModel viewModel;
     private boolean isFullscreen = false;
+    private ArrayList<RelatedVideo.Item> relatedVideos;
     OnBackPressedCallback onBackPressedCallback = new OnBackPressedCallback(true) {
         @Override
         public void handleOnBackPressed() {
@@ -55,6 +64,7 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
     };
     private CommentBottomSheet bottomSheetDialogFragment;
     private String videoId;
+    private String channelId;
 
     /**
      * sent player activity intent for client functions
@@ -90,11 +100,8 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         adapter.setItemClickListener(new RelatedVideoAdapter.ItemClickListener() {
             @Override
             public void onVideoClick(RelatedVideo.Item item) {
-                adapter.clearData();
-                mYouTubePlayer.loadVideo(item.id.videoId, 0);
-                viewModel.loadRelatedVideos(item.id.videoId);
                 videoId = item.id.videoId;
-                viewModel.loadVideoDetails(videoId);
+                loadNewVideo(videoId);
             }
 
             @Override
@@ -111,8 +118,11 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         //init viewModel
         viewModel = new ViewModelProvider(this).get(PlayerViewModel.class);
 
-        viewModel.loadRelatedVideos(videoId);
-        viewModel.loadVideoDetails(videoId);
+        if (videoId != null){
+            viewModel.loadRelatedVideos(videoId);
+            viewModel.loadVideoDetails(videoId);
+        }
+
 
         /* notify nested scrollView at the end position
         binding.nsvPlayerScrollView.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
@@ -144,10 +154,11 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         viewModel.getRelatedVideo().observe(this, new Observer<RelatedVideo>() {
             @Override
             public void onChanged(RelatedVideo relatedVideo) {
-                if (relatedVideo == null || relatedVideo.items == null)
+                if (relatedVideo == null || relatedVideo.error != null)
                     return;
+                relatedVideos = relatedVideo.items;
 
-                adapter.setData(relatedVideo.items);
+                adapter.setData(relatedVideos);
 
                 binding.pbPlayerRecentVideos.setVisibility(View.GONE);
             }
@@ -156,17 +167,23 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         viewModel.getVideoDetails().observe(this, new Observer<VideoDetails>() {
             @Override
             public void onChanged(VideoDetails videoDetails) {
-                if (videoDetails == null || videoDetails.items == null)
+                if (videoDetails == null || videoDetails.error != null)
                     return;
                 if (videoDetails.items.size() > 0){
                 VideoDetails.Item item = videoDetails.items.get(0);
-                binding.tvPlayerLike.setText(item.statistics.likeCount);
-                binding.tvPlayerComment.setText(item.statistics.commentCount);
-                binding.tvPlayerVideoView.setText(item.statistics.viewCount + " views");
+                String likeCount = Utils.shortenNumber(Double.parseDouble(item.statistics.likeCount));
+                String commentCount = Utils.shortenNumber(Double.parseDouble(item.statistics.commentCount));
+                String viewCount = Utils.shortenNumber(Double.parseDouble(item.statistics.viewCount));
+
+                binding.tvPlayerLike.setText(likeCount);
+                binding.tvPlayerComment.setText(commentCount);
+                binding.tvPlayerVideoView.setText(viewCount + " views");
 
                 binding.tvPlayerVideoTitle.setText(item.snippet.title);
                 binding.tvPlayerVideoDescription.setText(item.snippet.description);
                 binding.tvPlayerChannelName.setText(item.snippet.channelTitle);
+
+                channelId = item.snippet.channelId;
                 }
             }
         });
@@ -192,10 +209,6 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
     }*/
 
     private void setupYoutubePlayer(String videoId) {
-        IFramePlayerOptions iFramePlayerOptions = new IFramePlayerOptions.Builder()
-                .controls(1)
-                .fullscreen(1) // enable full screen button
-                .build();
 
         binding.youtubePlayerView.setEnableAutomaticInitialization(false);
         binding.youtubePlayerView.addFullscreenListener(new FullscreenListener() {
@@ -223,20 +236,130 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
                 binding.fullScreenViewContainer.removeAllViews();
             }
         });
-        binding.youtubePlayerView.initialize(new AbstractYouTubePlayerListener() {
+
+        binding.youtubePlayerView.addYouTubePlayerListener(new YouTubePlayerListener() {
             @Override
             public void onReady(@NonNull YouTubePlayer youTubePlayer) {
-                super.onReady(youTubePlayer);
-                mYouTubePlayer = youTubePlayer;
 
-                if (videoId != null) {
-                    youTubePlayer.loadVideo(videoId, 0);
+            }
+
+            @Override
+            public void onStateChange(@NonNull YouTubePlayer youTubePlayer, @NonNull PlayerConstants.PlayerState playerState) {
+                if (playerState == PlayerConstants.PlayerState.PLAYING){
+                    //the payer playing the video
+                    getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                }
+                if (playerState == PlayerConstants.PlayerState.PAUSED){
+                    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                }
+
+                if (playerState == PlayerConstants.PlayerState.ENDED){
+                    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                    new CountDownTimer(5000, 1000) {
+                        long countDownTime = Long.MAX_VALUE;
+
+                        public void onTick(long millisUntilFinished) {
+                            binding.tvCountDown.setVisibility(View.VISIBLE);
+                            long time = millisUntilFinished / 1000;
+                            if (time < countDownTime){
+                                countDownTime = time;
+                                binding.tvCountDown
+                                        .setText("Next video play in: " + time + " sec.");
+                            }
+                        }
+                        public void onFinish() {
+                            binding.tvCountDown.setVisibility(View.GONE);
+                            if (relatedVideos != null){
+                                binding.tvCountDown.setVisibility(View.GONE);
+                                String nextVideoId = relatedVideos.get(0).id.videoId;
+                                loadNewVideo(nextVideoId);
+                            }
+                        }
+                    }.start();
                 }
             }
-        }, iFramePlayerOptions);
 
+            @Override
+            public void onPlaybackQualityChange(@NonNull YouTubePlayer youTubePlayer, @NonNull PlayerConstants.PlaybackQuality playbackQuality) {
 
+            }
+
+            @Override
+            public void onPlaybackRateChange(@NonNull YouTubePlayer youTubePlayer, @NonNull PlayerConstants.PlaybackRate playbackRate) {
+
+            }
+
+            @Override
+            public void onError(@NonNull YouTubePlayer youTubePlayer, @NonNull PlayerConstants.PlayerError playerError) {
+
+            }
+
+            @Override
+            public void onCurrentSecond(@NonNull YouTubePlayer youTubePlayer, float v) {
+
+            }
+
+            @Override
+            public void onVideoDuration(@NonNull YouTubePlayer youTubePlayer, float v) {
+
+            }
+
+            @Override
+            public void onVideoLoadedFraction(@NonNull YouTubePlayer youTubePlayer, float v) {
+
+            }
+
+            @Override
+            public void onVideoId(@NonNull YouTubePlayer youTubePlayer, @NonNull String s) {
+
+            }
+
+            @Override
+            public void onApiChange(@NonNull YouTubePlayer youTubePlayer) {
+
+            }
+        });
+        IFramePlayerOptions iFramePlayerOptions = new IFramePlayerOptions.Builder()
+                .controls(1)
+                .fullscreen(1) // enable full screen button
+                .build();
+
+        Thread backgroundThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Looper.prepare();
+                Handler handler = new Handler();
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        binding.youtubePlayerView.initialize(new AbstractYouTubePlayerListener() {
+                            @Override
+                            public void onReady(@NonNull YouTubePlayer youTubePlayer) {
+                                super.onReady(youTubePlayer);
+                                mYouTubePlayer = youTubePlayer;
+
+                                if (videoId != null) {
+                                    youTubePlayer.loadVideo(videoId, 0);
+                                }
+                            }
+                        }, iFramePlayerOptions);
+                    }
+                });
+                Looper.loop();
+            }
+        });
+
+        backgroundThread.start();
         getLifecycle().addObserver(binding.youtubePlayerView);
+
+    }
+
+    private void loadNewVideo(String videoId){
+        adapter.clearData();
+        mYouTubePlayer.loadVideo(videoId, 0);
+        viewModel.loadRelatedVideos(videoId);
+        viewModel.loadVideoDetails(videoId);
     }
 
     @Override
@@ -276,7 +399,14 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
             }
         } else if (binding.ivPlayerChannelAvatar.equals(v) || binding.tvPlayerChannelName.equals(v)) {
             //ChannelActivity.getChannelActivityIntent(getApplicationContext(), )
-            Toast.makeText(this, "channel clicked", Toast.LENGTH_SHORT).show();
+            if (channelId != null){
+                Intent channelIntent = ChannelActivity.getChannelActivityIntent(getApplicationContext(), channelId);
+                startActivity(channelIntent);
+            }else {
+                Log.d(TAG, "onClick: channel id is null");
+
+            }
+
         }
     }
 }

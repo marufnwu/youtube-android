@@ -55,6 +55,8 @@ public class MainViewModel extends AndroidViewModel {
                         nextPageToken = response.body().nextPageToken;
                     } else
                         Utils.showLongLogMsg("response", response.toString());
+                }else {
+                    Log.d(TAG, "onResponse: error " + response);
                 }
             }
 

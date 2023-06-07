@@ -18,6 +18,7 @@ import com.logicline.tech.stube.models.ChannelDetails;
 import com.logicline.tech.stube.models.ChannelVideo;
 import com.logicline.tech.stube.ui.activities.playerActivity.PlayerActivity;
 import com.logicline.tech.stube.ui.adapters.ChannelVideoAdapter;
+import com.logicline.tech.stube.utils.Utils;
 
 public class ChannelActivity extends AppCompatActivity {
     private static final String TAG = "ChannelActivity";
@@ -77,12 +78,13 @@ public class ChannelActivity extends AppCompatActivity {
         viewModel.getChannelDetails().observe(this, new Observer<ChannelDetails>() {
             @Override
             public void onChanged(ChannelDetails channelDetails) {
-                if (channelDetails != null) {
+                if (channelDetails != null && channelDetails.error == null) {
                     ChannelDetails.Item item = channelDetails.items.get(0);
+                    String subscriberCount = Utils.shortenNumber(Double.parseDouble(item.statistics.subscriberCount));
 
                     binding.tvChannelATitle.setText(item.snippet.title);
                     binding.tvChannelADescription.setText(item.snippet.description);
-                    binding.tvChannelASubscriber.setText(item.statistics.subscriberCount + ". " + item.statistics.videoCount + " videos");
+                    binding.tvChannelASubscriber.setText(subscriberCount + " subscribers . " + item.statistics.videoCount + " videos");
                     Glide.with(getApplicationContext()).load(item.snippet.thumbnails.high.url).into(binding.ivChannelAThumbnail);
                 }
             }
@@ -91,7 +93,7 @@ public class ChannelActivity extends AppCompatActivity {
         viewModel.getNextPage().observe(this, new Observer<ChannelVideo>() {
             @Override
             public void onChanged(ChannelVideo channelVideo) {
-                if (channelVideo.items != null) {
+                if (channelVideo.items != null && channelVideo.error == null) {
                     adapter.addData(channelVideo.items);
                     isLoading = false;
                     Log.d(TAG, "getNextPage: loading finished " + channelVideo.items.size());

@@ -10,6 +10,19 @@ public class ChannelDetails {
     public String etag;
     public PageInfo pageInfo;
     public ArrayList<Item> items;
+    public SearchItem.Error error;
+
+    public class Error {
+        public int code;
+        public String message;
+        public ArrayList<SearchItem.Error2> errors;
+    }
+
+    public class Error2 {
+        public String message;
+        public String domain;
+        public String reason;
+    }
 
     public class Default {
         public String url;

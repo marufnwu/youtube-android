@@ -54,5 +54,28 @@ public class Utils {
 
         return sb;
     }
+
+    /**
+     *
+     * @param number that need to short
+     * @return the shorten number as String.
+     */
+    public static String shortenNumber(double number) {
+        String result;
+        if (number >= 1e9) {
+            // Convert to billions
+            result = String.format("%.1fB", number / 1e9);
+        } else if (number >= 1e6) {
+            // Convert to millions
+            result = String.format("%.1fM", number / 1e6);
+        } else if (number >= 1e3) {
+            // Convert to thousands
+            result = String.format("%.1fK", number / 1e3);
+        } else {
+            // Keep the number as is
+            result = String.format("%.0f", number);
+        }
+        return result;
+    }
 }
 

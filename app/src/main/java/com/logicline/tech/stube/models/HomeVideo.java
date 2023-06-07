@@ -14,6 +14,7 @@ public class HomeVideo {
     public String nextPageToken;
     public String prevPageToken;
     public PageInfo pageInfo;
+    public SearchItem.Error error;
 
     public static class Default {
         public String url;
@@ -32,6 +33,18 @@ public class HomeVideo {
         public String etag;
         public String id;
         public Snippet snippet;
+    }
+
+    public class Error {
+        public int code;
+        public String message;
+        public ArrayList<SearchItem.Error2> errors;
+    }
+
+    public class Error2 {
+        public String message;
+        public String domain;
+        public String reason;
     }
 
     public class Localized {
