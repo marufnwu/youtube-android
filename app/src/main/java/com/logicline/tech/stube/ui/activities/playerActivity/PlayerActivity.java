@@ -20,14 +20,17 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.google.gson.Gson;
+import com.logicline.tech.stube.R;
 import com.logicline.tech.stube.constants.Constants;
 import com.logicline.tech.stube.databinding.ActivityPlayerBinding;
-import com.logicline.tech.stube.models.CommentThread;
+import com.logicline.tech.stube.models.PlayerPlayListItem;
 import com.logicline.tech.stube.models.RelatedVideo;
 import com.logicline.tech.stube.models.VideoDetails;
 import com.logicline.tech.stube.ui.activities.channelActivity.ChannelActivity;
 import com.logicline.tech.stube.ui.adapters.RelatedVideoAdapter;
 import com.logicline.tech.stube.ui.dialog.CommentBottomSheet;
+import com.logicline.tech.stube.ui.dialog.PlayerPlayListBottomSheet;
 import com.logicline.tech.stube.utils.Utils;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer;
@@ -52,6 +55,7 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
     private PlayerViewModel viewModel;
     private boolean isFullscreen = false;
     private ArrayList<RelatedVideo.Item> relatedVideos;
+    private ArrayList<PlayerPlayListItem> playListItems = new ArrayList<>();
     OnBackPressedCallback onBackPressedCallback = new OnBackPressedCallback(true) {
         @Override
         public void handleOnBackPressed() {
@@ -63,6 +67,7 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         }
     };
     private CommentBottomSheet bottomSheetDialogFragment;
+    private PlayerPlayListBottomSheet playListBottomSheet;
     private String videoId;
     private String channelId;
 
@@ -86,7 +91,19 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         binding = ActivityPlayerBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        videoId = getIntent().getStringExtra(Constants.PLAYER_ACTIVITY_INTENT_ITEM_KEY);
+        if (getIntent().hasExtra(Constants.PLAYER_ACTIVITY_INTENT_ITEM_KEY))
+            videoId = getIntent().getStringExtra(Constants.PLAYER_ACTIVITY_INTENT_ITEM_KEY);
+        if (getIntent().hasExtra(Constants.PLAYER_ACTIVITY_INTENT_PLAYLIST)){
+            ArrayList<String> dataString = getIntent().getStringArrayListExtra(Constants.PLAYER_ACTIVITY_INTENT_PLAYLIST);
+            for (String data: dataString){
+                playListItems.add(new Gson().fromJson(data, PlayerPlayListItem.class));
+            }
+            videoId = playListItems.get(0).getVideoId();
+            binding.cvPlayerPlaylist.setVisibility(View.VISIBLE);
+            binding.tvPlayerPlaylistNextVideoTitle.setText(playListItems.get(1).getVideoTitle());
+            //binding.tvPlayerPlaylistName.setText(playListItems.get(0).);
+            Log.d(TAG, "onCreate: videoId " + videoId);
+        }
 
         initViews();
     }
@@ -101,6 +118,7 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
             @Override
             public void onVideoClick(RelatedVideo.Item item) {
                 videoId = item.id.videoId;
+                binding.cvPlayerPlaylist.setVisibility(View.GONE);
                 loadNewVideo(videoId);
             }
 
@@ -146,6 +164,7 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         binding.ivPlayerShare.setOnClickListener(this);
         binding.ivPlayerChannelAvatar.setOnClickListener(this);
         binding.tvPlayerChannelName.setOnClickListener(this);
+        binding.cvPlayerPlaylist.setOnClickListener(this);
 
         initViewModelObserver();
     }
@@ -362,6 +381,18 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         viewModel.loadVideoDetails(videoId);
     }
 
+    private void loadNextPlaylistVideo(PlayerPlayListItem item){
+        if (item.getPosition() != -1 && item.getPosition() + 1 < playListItems.size())
+            binding.tvPlayerPlaylistNextVideoTitle.setText(
+                    playListItems.get(item.getPosition() + 1).getVideoTitle());
+        if (item.getPosition() == playListItems.size() - 1){
+            binding.tvNextPlayerPlaylist.setText(R.string.end_of_the_playlist);
+            binding.tvPlayerPlaylistNextVideoTitle.setVisibility(View.GONE);
+        }
+
+        loadNewVideo(item.getVideoId());
+    }
+
     @Override
     public void onClick(View v) {
         //int id = v.getId();
@@ -380,7 +411,7 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
 
             bottomSheetDialogFragment = new CommentBottomSheet();
             Bundle bundle = new Bundle();
-            bundle.putString(Constants.BOTTOM_SHEET_DATA_KEY, videoId);
+            bundle.putString(Constants.COMMENT_BOTTOM_SHEET_DATA_KEY, videoId);
             bottomSheetDialogFragment.setArguments(bundle);
             bottomSheetDialogFragment.show(getSupportFragmentManager(), "bottomSheet");
 
@@ -407,6 +438,26 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
 
             }
 
+        } else if (binding.cvPlayerPlaylist.equals(v)) {
+            playListBottomSheet = new PlayerPlayListBottomSheet();
+            Bundle bundle = new Bundle();
+
+            ArrayList<String> data = new ArrayList<>();
+            for (PlayerPlayListItem item: playListItems){
+                String itemString = new Gson().toJson(item);
+                data.add(itemString);
+            }
+
+            bundle.putStringArrayList(Constants.PLAYLIST_BOTTOM_SHEET_DATA_KEY, data);
+            playListBottomSheet.setArguments(bundle);
+
+            playListBottomSheet.setPlayListVideoClickListener(new PlayerPlayListBottomSheet.PlaylistVideoClickListener() {
+                @Override
+                public void onClick(PlayerPlayListItem item) {
+                    loadNextPlaylistVideo(item);
+                }
+            });
+            playListBottomSheet.show(getSupportFragmentManager(), "bottomSheet");
         }
     }
 }

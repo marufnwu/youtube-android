@@ -14,6 +14,7 @@ import com.google.gson.Gson;
 import com.logicline.tech.stube.R;
 import com.logicline.tech.stube.databinding.ItemPlaylistVideoBinding;
 import com.logicline.tech.stube.models.PlayListVideo;
+import com.logicline.tech.stube.models.PlayerPlayListItem;
 
 import java.util.List;
 

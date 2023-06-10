@@ -38,11 +38,11 @@ public class CommentBottomSheet extends BottomSheetDialogFragment {
         View view = inflater.inflate(R.layout.layout_bottom_sheet_comment, container, false);
 
         if (this.getArguments() != null)
-            videoId = this.getArguments().getString(Constants.BOTTOM_SHEET_DATA_KEY);
+            videoId = this.getArguments().getString(Constants.COMMENT_BOTTOM_SHEET_DATA_KEY);
 
         viewModel = new ViewModelProvider(this).get(PlayerViewModel.class);
 
-        commentRv = view.findViewById(R.id.rv_comments);
+        commentRv = view.findViewById(R.id.rv_player_playlist);
         commentRv.setLayoutManager(new LinearLayoutManager(getContext()));
 
         commentsAdapter = new CommentsAdapter(getContext());
@@ -83,6 +83,7 @@ public class CommentBottomSheet extends BottomSheetDialogFragment {
                 return false;
             }
         });
+
     }
 
     private void initViewModelObserver() {

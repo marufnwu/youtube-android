@@ -1,10 +1,5 @@
 package com.logicline.tech.stube.ui.activities.playlistActivity;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,15 +7,23 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.logicline.tech.stube.constants.Constants;
 import com.logicline.tech.stube.databinding.ActivityPlaylistBinding;
 import com.logicline.tech.stube.models.PlayListVideo;
+import com.logicline.tech.stube.models.PlayerPlayListItem;
 import com.logicline.tech.stube.models.PlaylistData;
 import com.logicline.tech.stube.ui.activities.playerActivity.PlayerActivity;
 import com.logicline.tech.stube.ui.adapters.PlaylistVideoAdapter;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class PlaylistActivity extends AppCompatActivity implements View.OnClickListener {
@@ -29,6 +32,14 @@ public class PlaylistActivity extends AppCompatActivity implements View.OnClickL
     private ActivityPlaylistBinding binding;
     private PlaylistVideoAdapter adapter;
     private PlaylistViewModel viewModel;
+    private ArrayList<PlayListVideo.Item> items;
+
+    public static Intent getPlayListIntent(Context context, PlaylistData data) {
+        Intent intent = new Intent(context, PlaylistActivity.class);
+        String dataString = new Gson().toJson(data);
+        intent.putExtra(Constants.PLAYLIST_ACTIVITY_DATA_KEY, dataString);
+        return intent;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +51,7 @@ public class PlaylistActivity extends AppCompatActivity implements View.OnClickL
         viewModel = new ViewModelProvider(this).get(PlaylistViewModel.class);
 
         Intent intent = getIntent();
-        if (intent != null){
+        if (intent != null) {
             String dataString = intent.getStringExtra(Constants.PLAYLIST_ACTIVITY_DATA_KEY);
             intentDAta = new Gson().fromJson(dataString, PlaylistData.class);
         }
@@ -49,7 +60,8 @@ public class PlaylistActivity extends AppCompatActivity implements View.OnClickL
 
         initViews();
     }
-    private void initViews(){
+
+    private void initViews() {
         binding.tvPlaylistTitle.setText(intentDAta.getPlayListTitle());
         binding.tvChannelTitle.setText(intentDAta.getChannelTitle());
         Glide.with(this).load(intentDAta.getPlayListThumbnail()).into(binding.ivPlaylistThumbnail);
@@ -61,9 +73,9 @@ public class PlaylistActivity extends AppCompatActivity implements View.OnClickL
         adapter.setItemClickListener(new PlaylistVideoAdapter.ItemClickListener() {
             @Override
             public void onClick(PlayListVideo.Item item) {
-                if (Objects.equals(item.snippet.title, "Private video")){
+                if (Objects.equals(item.snippet.title, "Private video")) {
                     Toast.makeText(getApplicationContext(), "Private video", Toast.LENGTH_SHORT).show();
-                }else {
+                } else {
                     Intent intent = new Intent(getApplicationContext(), PlayerActivity.class);
                     intent.putExtra(Constants.PLAYER_ACTIVITY_INTENT_ITEM_KEY, item.snippet.resourceId.videoId);
                     startActivity(intent);
@@ -78,11 +90,13 @@ public class PlaylistActivity extends AppCompatActivity implements View.OnClickL
 
         viewModel.loadPlayListVideo(intentDAta.getPlaylistId());
     }
-    private void initViewModelObserver(){
+
+    private void initViewModelObserver() {
         viewModel.getPlayListVideo().observe(this, new Observer<PlayListVideo>() {
             @Override
             public void onChanged(PlayListVideo playListVideo) {
-                if (playListVideo != null && playListVideo.error == null){
+                if (playListVideo != null && playListVideo.error == null) {
+                    items = playListVideo.items;
                     adapter.setData(playListVideo.items);
                 }
             }
@@ -91,15 +105,17 @@ public class PlaylistActivity extends AppCompatActivity implements View.OnClickL
 
     @Override
     public void onClick(View v) {
-        if (v == binding.btnPlayAll){
-            Toast.makeText(getApplicationContext(), "play All clicked", Toast.LENGTH_SHORT).show();
-        }
-    }
+        if (v == binding.btnPlayAll) {
+            Intent playerIntent = new Intent(getApplicationContext(), PlayerActivity.class);
+            ArrayList<String> data = new ArrayList<>();
+            for (PlayListVideo.Item item: items){
+                PlayerPlayListItem temp = new PlayerPlayListItem(item.snippet.title,
+                        item.snippet.resourceId.videoId, item.snippet.thumbnails.high.url,item.snippet.channelTitle, false);
+                data.add(new Gson().toJson(temp));
+            }
 
-    public static Intent getPlayListIntent(Context context, PlaylistData data){
-        Intent intent = new Intent(context, PlaylistActivity.class);
-        String dataString = new Gson().toJson(data);
-        intent.putExtra(Constants.PLAYLIST_ACTIVITY_DATA_KEY, dataString);
-        return intent;
+            playerIntent.putStringArrayListExtra(Constants.PLAYER_ACTIVITY_INTENT_PLAYLIST, data);
+            startActivity(playerIntent);
+        }
     }
 }

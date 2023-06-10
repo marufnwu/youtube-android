@@ -6,5 +6,6 @@
     <string name="txt_no_internet">Please Check Your Internet connection</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="end_of_the_playlist">End of the playlist</string>
 
 </resources>

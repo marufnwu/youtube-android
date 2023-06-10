@@ -20,11 +20,11 @@
         android:layout_marginRight="@dimen/_16sdp"
         android:layout_marginBottom="@dimen/_32sdp"
         android:alpha="0.7"
-        android:visibility="gone"
         android:background="@color/white"
         android:padding="@dimen/_8sdp"
         android:textColor="@color/text_color"
         android:textSize="@dimen/_13sdp"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/youtube_player_view"
         app:layout_constraintEnd_toEndOf="@+id/youtube_player_view"
         tools:text="Hello World" />
@@ -84,7 +84,7 @@
                 android:layout_marginStart="@dimen/_16sdp"
                 android:layout_marginTop="@dimen/_8sdp"
                 android:layout_marginEnd="@dimen/_16sdp"
-                app:cardBackgroundColor="#DFDFDF"
+                app:cardBackgroundColor="@color/card_background"
                 app:cardCornerRadius="@dimen/_10sdp"
                 app:layout_constraintTop_toBottomOf="@+id/tv_player_video_description">
 
@@ -225,6 +225,91 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/youtube_player_view" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cv_player_playlist"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/_50sdp"
+        android:layout_marginStart="@dimen/_16sdp"
+        android:layout_marginEnd="@dimen/_16sdp"
+        android:layout_marginBottom="@dimen/_24sdp"
+        android:alpha="0.9"
+        android:visibility="visible"
+        app:cardBackgroundColor="@color/card_background"
+        app:cardCornerRadius="@dimen/_10sdp"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="@dimen/_4sdp">
+
+            <ImageView
+                android:id="@+id/iv_playlist"
+                android:layout_width="@dimen/_18sdp"
+                android:layout_height="@dimen/_18sdp"
+                android:layout_marginStart="@dimen/_8sdp"
+                android:src="@drawable/ic_playlist"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/_8sdp"
+                android:layout_marginEnd="@dimen/_4sdp"
+                app:layout_constraintBottom_toBottomOf="@+id/iv_playlist"
+                app:layout_constraintEnd_toStartOf="@+id/iv_player_up_arrow"
+                app:layout_constraintStart_toEndOf="@+id/iv_playlist"
+                app:layout_constraintTop_toTopOf="@+id/iv_playlist">
+
+                <TextView
+                    android:id="@+id/tv_next_player_playlist"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Next: "
+                    android:textColor="@color/text_color"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tv_player_playlist_next_video_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:maxLines="1"
+                    android:textColor="@color/text_color"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/tv_next_player_playlist"
+                    app:layout_constraintTop_toTopOf="@+id/tv_next_player_playlist"
+                    tools:text="Hello world" />
+
+                <TextView
+                    android:id="@+id/tv_player_playlist_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/_4sdp"
+                    tools:text="Hello worlddddddddddddddddddddd"
+                    android:textColor="@color/text_color"
+                    app:layout_constraintStart_toStartOf="@+id/tv_next_player_playlist"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_next_player_playlist" />
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <ImageView
+                android:id="@+id/iv_player_up_arrow"
+                android:layout_width="@dimen/_16sdp"
+                android:layout_height="@dimen/_16sdp"
+                android:layout_marginEnd="@dimen/_8sdp"
+                android:src="@drawable/ic_up_arrow"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
 
     <FrameLayout
         android:id="@+id/full_screen_view_container"
