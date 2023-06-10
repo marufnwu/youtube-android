@@ -106,16 +106,19 @@ public class PlaylistActivity extends AppCompatActivity implements View.OnClickL
     @Override
     public void onClick(View v) {
         if (v == binding.btnPlayAll) {
-            Intent playerIntent = new Intent(getApplicationContext(), PlayerActivity.class);
-            ArrayList<String> data = new ArrayList<>();
-            for (PlayListVideo.Item item: items){
-                PlayerPlayListItem temp = new PlayerPlayListItem(item.snippet.title,
-                        item.snippet.resourceId.videoId, item.snippet.thumbnails.high.url,item.snippet.channelTitle, false);
-                data.add(new Gson().toJson(temp));
-            }
+            if (items != null && items.size() != 0){
+                Intent playerIntent = new Intent(getApplicationContext(), PlayerActivity.class);
+                ArrayList<String> data = new ArrayList<>();
+                for (PlayListVideo.Item item: items){
+                    PlayerPlayListItem temp = new PlayerPlayListItem(item.snippet.title,
+                            item.snippet.resourceId.videoId, item.snippet.thumbnails.high.url,item.snippet.channelTitle, false);
+                    data.add(new Gson().toJson(temp));
+                }
 
-            playerIntent.putStringArrayListExtra(Constants.PLAYER_ACTIVITY_INTENT_PLAYLIST, data);
-            startActivity(playerIntent);
+                playerIntent.putStringArrayListExtra(Constants.PLAYER_ACTIVITY_INTENT_PLAYLIST, data);
+                playerIntent.putExtra(Constants.PLAYER_ACTIVITY_INTENT_PLAYLIST_NAME, intentDAta.getPlayListTitle());
+                startActivity(playerIntent);
+            }
         }
     }
 }

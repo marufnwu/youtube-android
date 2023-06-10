@@ -1,4 +1,4 @@
-package com.logicline.tech.stube.ui.activities.playerActivity;
+package com.logicline.tech.stube.ui.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
@@ -10,6 +10,7 @@ import android.os.Bundle;
 import com.logicline.tech.stube.R;
 import com.logicline.tech.stube.databinding.ActivityTestBinding;
 import com.logicline.tech.stube.models.RelatedVideo;
+import com.logicline.tech.stube.ui.activities.playerActivity.PlayerViewModel;
 import com.logicline.tech.stube.ui.adapters.RelatedVideoAdapter;
 
 public class TestActivity extends AppCompatActivity {

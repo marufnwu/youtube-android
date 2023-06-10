@@ -19,7 +19,7 @@
             android:name=".ui.activities.playlistActivity.PlaylistActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.activities.playerActivity.TestActivity"
+            android:name=".ui.activities.TestActivity"
             android:exported="false" />
         <activity
             android:name=".ui.activities.channelActivity.ChannelActivity"

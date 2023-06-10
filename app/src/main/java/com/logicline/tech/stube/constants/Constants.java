@@ -4,6 +4,7 @@ public class Constants {
 
     public static final String PLAYER_ACTIVITY_INTENT_ITEM_KEY = "item";
     public static final String PLAYER_ACTIVITY_INTENT_PLAYLIST = "playerPlaylist";
+    public static final String PLAYER_ACTIVITY_INTENT_PLAYLIST_NAME = "playListName";
     public static final String CHANNEL_ACTIVITY_CHANNEL_ID_KEY = "channel_data";
     public static final String PLAYLIST_ACTIVITY_DATA_KEY = "play_list";
     public static final String COMMENT_BOTTOM_SHEET_DATA_KEY = "commentBottomSheetKey";

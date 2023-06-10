@@ -70,6 +70,7 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
     private PlayerPlayListBottomSheet playListBottomSheet;
     private String videoId;
     private String channelId;
+    private int playingVideoPosition = 0;
 
     /**
      * sent player activity intent for client functions
@@ -93,16 +94,25 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
 
         if (getIntent().hasExtra(Constants.PLAYER_ACTIVITY_INTENT_ITEM_KEY))
             videoId = getIntent().getStringExtra(Constants.PLAYER_ACTIVITY_INTENT_ITEM_KEY);
+
         if (getIntent().hasExtra(Constants.PLAYER_ACTIVITY_INTENT_PLAYLIST)){
             ArrayList<String> dataString = getIntent().getStringArrayListExtra(Constants.PLAYER_ACTIVITY_INTENT_PLAYLIST);
-            for (String data: dataString){
-                playListItems.add(new Gson().fromJson(data, PlayerPlayListItem.class));
+
+            for (int i = 0; i< dataString.size(); i++){
+                PlayerPlayListItem item = new Gson().fromJson(dataString.get(i), PlayerPlayListItem.class);
+                item.setPosition(i);
+
+                playListItems.add(item);
             }
             videoId = playListItems.get(0).getVideoId();
             binding.cvPlayerPlaylist.setVisibility(View.VISIBLE);
             binding.tvPlayerPlaylistNextVideoTitle.setText(playListItems.get(1).getVideoTitle());
             //binding.tvPlayerPlaylistName.setText(playListItems.get(0).);
             Log.d(TAG, "onCreate: videoId " + videoId);
+        }
+        if (getIntent().hasExtra(Constants.PLAYER_ACTIVITY_INTENT_PLAYLIST_NAME)){
+            String playListName = getIntent().getStringExtra(Constants.PLAYER_ACTIVITY_INTENT_PLAYLIST_NAME);
+            binding.tvPlayerPlaylistName.setText(playListName);
         }
 
         initViews();
@@ -289,9 +299,20 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
                         public void onFinish() {
                             binding.tvCountDown.setVisibility(View.GONE);
                             if (relatedVideos != null){
-                                binding.tvCountDown.setVisibility(View.GONE);
-                                String nextVideoId = relatedVideos.get(0).id.videoId;
-                                loadNewVideo(nextVideoId);
+
+                                if (playListItems != null && playListItems.size() != 0
+                                        && playingVideoPosition < playListItems.size() - 1){
+                                    Log.d(TAG, "onFinish: playing position " + playingVideoPosition);
+
+                                    PlayerPlayListItem item = playListItems.get(playingVideoPosition + 1);
+                                    loadNextPlaylistVideo(item);
+                                }
+                                else {
+                                    binding.tvCountDown.setVisibility(View.GONE);
+                                    binding.cvPlayerPlaylist.setVisibility(View.GONE);
+                                    String nextVideoId = relatedVideos.get(0).id.videoId;
+                                    loadNewVideo(nextVideoId);
+                                }
                             }
                         }
                     }.start();
@@ -382,6 +403,8 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void loadNextPlaylistVideo(PlayerPlayListItem item){
+        Log.d(TAG, "loadNextPlaylistVideo: is called");
+        Log.d(TAG, "loadNextPlaylistVideo: item position " + item.getPosition());
         if (item.getPosition() != -1 && item.getPosition() + 1 < playListItems.size())
             binding.tvPlayerPlaylistNextVideoTitle.setText(
                     playListItems.get(item.getPosition() + 1).getVideoTitle());
@@ -389,6 +412,8 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
             binding.tvNextPlayerPlaylist.setText(R.string.end_of_the_playlist);
             binding.tvPlayerPlaylistNextVideoTitle.setVisibility(View.GONE);
         }
+        playingVideoPosition = item.getPosition();
+        Log.d(TAG, "loadNextPlaylistVideo: playing position " + playingVideoPosition);
 
         loadNewVideo(item.getVideoId());
     }

@@ -234,7 +234,7 @@
         android:layout_marginEnd="@dimen/_16sdp"
         android:layout_marginBottom="@dimen/_24sdp"
         android:alpha="0.9"
-        android:visibility="visible"
+        android:visibility="gone"
         app:cardBackgroundColor="@color/card_background"
         app:cardCornerRadius="@dimen/_10sdp"
         app:layout_constraintBottom_toBottomOf="parent">
