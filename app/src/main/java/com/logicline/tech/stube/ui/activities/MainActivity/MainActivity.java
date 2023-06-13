@@ -124,11 +124,6 @@ public class MainActivity extends AppCompatActivity {
                 Intent channelIntent = ChannelActivity.getChannelActivityIntent(getApplicationContext(), item.snippet.channelId);
                 startActivity(channelIntent);
             }
-
-           /* @Override
-            public void onClick(HomeVideo.Item item) {
-
-            }*/
         });
 
         binding.rvHomeVideos.setAdapter(adapter);
